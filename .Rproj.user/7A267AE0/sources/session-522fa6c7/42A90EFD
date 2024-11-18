@@ -1,0 +1,30 @@
+{
+    "id": "42A90EFD",
+    "path": "~/Desktop/multilevel_project/LAB O.qmd",
+    "project_path": "LAB O.qmd",
+    "type": "quarto_markdown",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1731878381544.0,
+    "source_on_save": false,
+    "relative_order": 3,
+    "properties": {
+        "rmdVisualMode": "true",
+        "rmdVisualWrapConfigured": "true",
+        "chunk_output_type": "console",
+        "source_window_id": "",
+        "Source": "Source",
+        "docOutlineVisible": "0",
+        "rmdVisualCollapsedChunks": "",
+        "rmdVisualModeLocation": "2251:0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1725563680,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1725563680,
+    "read_only": false,
+    "read_only_alternatives": []
+}

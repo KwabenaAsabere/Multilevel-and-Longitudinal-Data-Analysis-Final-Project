@@ -1,0 +1,204 @@
+---
+title: "LAB 0"
+author: "K.ASABERE"
+format: html
+editor: visual
+df-print: kable
+code-overflow: wrap
+execute: 
+  echo: true
+  warning: false
+  message: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(tidyverse)
+theme_set(theme_bw())
+hsb <- read_csv("hsb_data.csv")
+
+
+```
+
+```{r}
+hsb |> head()
+hsb <-  hsb |> group_by(schoolid) |> 
+  mutate(N = n()) |> 
+  ungroup()
+
+hsb <- hsb |> 
+  mutate(n = row_number(),
+         .by =schoolid ) |> 
+  slice(1:47) |> 
+  select(newid,N,n,ses,sector)
+
+
+
+
+
+
+```
+
+```{r}
+wide = read_csv("Lab0_wide.csv")
+wide |> head(10)
+
+long <- read_csv("Lab0_long.csv")
+long |> head(10)
+
+
+```
+
+```{r}
+wide |> summary()
+
+wide |> map_dbl(sd)
+
+
+```
+
+```{r}
+wide_new <- wide |> 
+  pivot_longer(
+    cols = y1:y4,
+    names_to = "time",
+    values_to = "y"
+  ) |> 
+  arrange(id)
+
+
+```
+
+```{r}
+ long |> 
+  pivot_wider(
+    names_from = time,
+    values_from = y
+    ) |> 
+  head()
+
+
+
+
+```
+
+```{r}
+long |> 
+  group_by(time) |> 
+  summarise(
+    meanY = mean(y),
+    sdY = sd(y),
+    minY = min(y),
+    maxY = max(y)
+  )
+
+long <- long |> 
+  mutate(counter = 1:n(),
+         .by = id) |> 
+  relocate(counter,.before = time) 
+
+long |> head(10)
+
+long |> 
+  filter(counter ==1) |> 
+  select(age,gender,severity) |> 
+  map_dbl(sd)
+
+
+
+```
+
+```{r}
+df <- long
+n <- length(unique(df$id))
+
+vis_summary <- df |> 
+  group_by(time) |> 
+  summarise(
+    avgy = mean(y),
+    sdy = sd(y),
+    medy = median(y),
+    q75y = quantile(y,0.75),
+    q25y = quantile(y,0.25)
+     )
+
+vis_summary
+
+
+```
+
+```{r}
+vis_summary |> 
+  ggplot()+
+  geom_point(aes(x = time,y = avgy),color = "red")+
+  geom_line(aes(x = time,y = avgy),color = "red",linewidth = 1)+
+  geom_pointrange(aes(x = time,y = avgy,ymin = avgy - 1.96*sdy/sqrt(n),
+                          ymax = avgy + 1.96*sdy/sqrt(n)))+
+  theme(axis.text = element_text(size = 10))+
+  xlab("Visit")+
+  ylab("SF-36 Mental")+
+  ggtitle("Average SF-36-Mental vs Visit")
+
+
+
+
+
+```
+
+```{r}
+
+vis_summary |> 
+  ggplot()+
+  geom_point(aes(x = time,y = avgy),color = "red")+
+  geom_line(aes(x = time,y = avgy),color = "red",linewidth = 1)+
+  geom_pointrange(aes(x = time,y = avgy,ymin = q25y,ymax = q75y))+
+  theme(axis.text = element_text(size = 10))+
+  xlab("Visit")+
+  ylab("SF-36 Mental")+
+  ggtitle("Median(IQR) SF-36-Mental vs Visit")
+
+
+```
+
+```{r}
+df |> head()
+
+df |> 
+  ggplot()+
+  geom_boxplot(aes(group = time,x = time,y = y))+
+  geom_line(aes(group = id,x =time, y= y),color = "grey",alpha = 0.3)+
+  theme_classic()+
+   xlab("Visit")+
+  ylab("SF-36 Mental")+
+  ggtitle("SF-36 Mental")
+  
+
+```
+
+```{r}
+
+df |> 
+  ggplot()+
+  geom_boxplot(aes(group = time,x = time,y = y))+
+  geom_line(aes(group = id,x =time, y= y),color = "grey",alpha = 0.3)+
+  ggtitle("SF-36 Mental")+
+  geom_point(data=vis_summary, aes(x = time,y = avgy),color = "red")+
+  geom_line(data = vis_summary,aes(x = time,y = avgy),color = "red",linewidth = 1)+
+  geom_pointrange(data = vis_summary,aes(x =time, y = avgy, ymin = avgy - 1.96*sdy/sqrt(n),ymax = avgy + 1.96*sdy/sqrt(n)))+
+  ggtitle("Sphagetti Plot of SF-36 Mental vs Visit")+
+  xlab("Visit")+
+  ylab("SF-36 Mental")
+
+
+```
+
+```{r}
+
+pairs(df)
+
+```
+
+```{r}
+mc <- read_csv()
+```
