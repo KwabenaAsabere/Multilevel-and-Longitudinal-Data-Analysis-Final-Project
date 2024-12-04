@@ -1,0 +1,380 @@
+---
+title: "Natural Cubic Splines in an Illustration of the QuODDID Template for the Analysis of Longitudinal Data"
+author: "Scott Zeger"
+date: "2024-10-28"
+output: 
+pdf_document: default
+html_document: default
+word_document: default
+always_allow_html: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(tidyverse)
+library(lme4)
+library(lmtest)
+library(patchwork)
+library(splines)
+library(nlme)
+library(clubSandwich)
+```
+
+#### Natural (restricted) splines as predictors in longitudinal data models
+
+When we model longitudinal data (repeated measurements on individuals), a common goal is to estimate the population mean outcome as a function of follow-up time $t_{ij}$ for the $j^{th}$ observation $j=1,\ldots,n_i$  on person $i=1,\ldots,m$. Another is to compare the mean outcome change over time (aka *trajectory*) among two or more subgroups of people. A third goal is to estimate a single individual's trajectory and to predict her future values. In this note, we focus on the predictor follow-up time $t_{ij}$, but the same ideas apply to any continuous predictor $x_{ij}$.
+
+In most applications, there is no a priori reason to assume that the mean trajectory follows a particular mathematical form such as a straight line or a lower-order polynomial. But it is often reasonable to expect that, whatever its particular form, the mean trajectory varies smoothly over time. If the smoothness assumption is reasonable, *natural cubic splines* (aka *restricted cubic splines*) are useful predictors to represent smooth, but possibly non-linear relationships. 
+
+A natural spline of $Y$ on $X$ is a *cubic regression spline* with specified boundary and internal knots and with 4 constraints beyond the data boundaries $(x_{min}, x_{max})$.  To understand a cubic regression spline, divide  the range of observed $X$-values into $\nu$ bins by specifying $\nu-1$ ordered internal knots $k_j, j=1,\ldots,\nu-1$ that form a partition of X into $\nu$ bins with boundaries: ($x_{min}, k_1,\ldots,k_{\nu-1},x_{max}$). For example, if we choose $\nu=2$ bins and place the one internal knot at the median $X$ value, the two bins are: (1) the $x$ values below the median; and (2) those equal to or greater than the median. Within each bin, the cubic regression spline is a cubic polynomial in $x$ that can be written $f(x;\beta) =  \beta_0 + \beta_1 x + \beta_2 x^2 + \beta_3 x^3$. It has 4 coefficients (degrees of freedom) so, if there are $\nu$ bins, we have $4\nu$ regression coefficients in total. If we exclude the overall mean (level of the curve), we have $4\nu-1$ degrees of freedom for the shape of the curve.  
+
+But a cubic spline would not be smooth with arbitrary disconnected cubic polynomials in the bins.  So we force them to connect to one another smoothly. Smoothness is achieved by requiring that the cubic polynomials in neighboring bins share the same value $f(x)$, slope $f'(x)$ and curvature $f''(x)$ at each internal knot $k_j$. These smoothness constraints reduce the degrees of freedom. If we start with $4\nu-1$ degrees of freedom, then apply $3(\nu-1)$ constraints, we are left with $(\nu-1)+3$ degrees of freedom that define the *cubic regression spline*. For applications in regression analysis, we can write the formula for this cubic regression spline as follows:
+  \[
+    f(x;\beta) = \beta_0 + \beta_1 x + \beta_2 x^2 + \beta_3 x^3 + \sum_{j=1}^{\nu-1} \beta_{4+j} \{(x-k_j)^+\}^3
+    \]
+where $x^+ = x \hspace{.2cm} \mbox{if} \hspace{.2cm}| \hspace{.2cm}x>0;\hspace{.2cm} 0 \hspace{.2cm}\mbox{otherwise}$.
+In addition to the intercept $\beta_0$, there are 3 coefficients $\beta_1,\beta_2,\beta_3$, for the base cubic polynomial, then a change in the cubic term at each of the $\nu-1$ internal knots for a total of $(\nu-1) + 3$ regression coefficients that describe the dependence of the mean outcome on $X$. 
+
+With this background on regression splines, we can now represent natural splines as a cubic regression splines with 4 more constraints, 2 each at $x_{min}$ and $x_{max}$. The goal is to avoid excessive curvature in $f(x)$ near the boundaries of the observed data. So, we assume that $f(x)$ is linear at the boundaries or, equivalently, that it's second and higher derivatives are $0$ at the boundary knots. Note that most of the time, we set the boundary knots to be at the limits of the data, but this is not required. 
+
+To work out the degrees of freedom for a natural spline, focus on the full set of $\nu+1$ knots comprising the two boundary knots and the $\nu-1$ internal knots. For this set of knots, the regression spline has $(\nu+1)+3 = \nu + 4$ parameters to which we apply 4 additional constraints leaving exactly $\nu$ degrees of freedom. In summary, with $\nu-1$ internal knots, a natural spline has $\nu$ degrees of freedom, one per $X$ bin. The R function $ns(x,\nu)$ produces $\nu$ predictors, each a different function of $X$. In Stata, the natural splines are called *restricted splines*. The degrees of freedom you must specify includes both the boundary and internal knots, so if you ask for 5 knots: 2 boundary and 3 internal knots, you will get 4 predictor variable, one more than the number of internal knots. Excellent lecture slides about how to use natural splines in Stata are available from JHU alumnus Bill Dupont at Vanderbilt Biostatistics on the course website. 
+
+You can obtain the predictors that correspond to a natural cubic spline with $K$ degrees of freedom with the R command *ns(x,df=K)* after you have invoked the *splines* library. If you do not specify otherwise, the command chooses $K$ knots so that the same fraction of points fall in each of the $K+1$ bins. You can control the boundaries and internal knots by using the *Boundary.knots* and *knots* options instead of the *df* option. This is a good idea when you plan to apply the fitted model to a new data set with different values of $X$.
+
+Below find a plot of the the 3 columns of the X matrix that represent a natural cubic spline for the $X$ variable that is the first 100 integers. By using *ns(x,df=3)*, we are choosing 2 internal knots at the $33^{rd}$ and $67^{th}$ percentiles of X and boundary knots at the smallest and largest values of $X$ giving 3 distinct columns of predictors that together represent a smooth, not non-linear function of $X$. These columns are often called the *basis vectors* of the cubic spline. The number of basis vectors representing $X$ is the degrees of freedom of the smooth function. 
+
+```{r}
+x=1:100
+matplot(x, ns(x,3), main="ns basis vectors with df=3")
+```
+
+#### Application
+
+1. Examine the 3 basis vectors in the figure above. Explain why different linear combinations of these predictors can represent many different smooth functions of time.
+
+2. If we increase the number of degrees of freedom for the cubic spline, for example us *ns(x,df=6)$ rather than *ns(x,df=3)*, we will have more basis vectors. Explain why that increases the flexibility of the resulting function of time.
+
+The rest of this note demonstrates how to use natural cubic splines in an analysis of the positive symptoms of schizophrenia from a clinical trial to compare risperidone, haloperidol and placebo. The data set is called *panss*. The data and codebook are posted on the CoursePlus site in the General section of the online library.
+
+#### QuODDID stands for $\mbox{Question}^3$, Outcome, Design, Data display, Inference, Dissemination
+
+Now we can use our new skills with natural cubic splines to illustrate the use of the QuODDID template for the analysis of multilevel, here longitudinal data.
+
+#### Longitudinal analysis of schizophrenic symptoms in a randomized clinical trial (RCT)
+
+#### Qu stands for "Question, Question, Question.
+
+These data were generated in a randomized controlled trial designed to compare the level of schizophrenic symptoms over 8 weeks among patients randomized to receive placebo, an existing treatment haloperidol and a new treatment risperidone at multiple doses. It is a multi-center trial in that patients were recruited and randomized from across many psychiatric practices. 
+
+In the remainder of this note, we will focus on the question of *whether or not haloperidol is superior to placebo in the population mean positive symptoms level over 8 weeks*. Our null hypothesis is that haloperidol is equivalent or worse than placebo with alternative hypothesis that it is superior to placebo. 
+
+#### O stands for Outcome 
+
+The outcome variable in this RCT is the Positive and Negative Symptoms of Schizophrenia (PANSS) score. The PANSS has three component scores: positive, negative and general symptoms scores. For the total and component sores, higher values represent more symptoms; a more effective treatment decreases the mean outcome. 
+
+We will focus on the positive subscore.  The word *positive* is not a value judgement. It refers to symptoms added to a patient's base personality including hallucinations, delusions, illogical changes in behavior or thoughts, hyperactivity, and thought disorder. Positive symptoms are in contrast to negative symptoms that represent subtractions include apathy, lethargy, and withdrawal from social events or settings. 
+
+As shown in the histogram below, the distribution of positive symptoms is slightly skewed to higher values (right). We could consider transforming the outcome value, using the square root or log that might improve its symmetry. However, the degree of skewness is not sufficient to warrant dealing with the communication challenge of using a transformed outcome. So we stick with the original symptoms scale with which clinicians are familiar.
+
+#### D stands for study *design* and *design* matrix in a statistical model
+
+The trial design was to measure the outcome on two occasions (times -1 and 0) before  assigning patients to treatment groups, then to collect symptoms outcomes 1, 2, 4, 6, and 8 weeks post-randomization during which patients were treated with their assigned medication.
+
+To simplify the analysis, we will use only a single baseline time $t=0$, ignoring the earlier value at $t=-1$ that might have been used for qualifying patients to study inclusion. Dropping one of the two baselines is not optimal, but it probably costs us little. This is because we know the two groups are exactly equivalent at baseline. Neither group has received any study medication; they differ only in their random assignment. So we know they share the same population mean outcome at $t=0$, hence have twice as much data to estimate this common value as we do to estimate mean outcomes after treatment begins. Also, the two repeated observations on a patient during the baseline period are likely to be highly positively correlated. So having two values is better than one, but not much better. Finally, dropping one of the two baseline is a modest simplification. A small tweak in the model for one baseline measure will easily accommodate two. 
+
+In specifying a statistical model to address a scientific question, the most important objective is that the question be represented in a small number of terms (or components) that can be estimated from the observed outcome data. In our RCT problem, the question is whether the mean outcome has a different trajectory for the two treatment groups. So our mean model should allow each group to have its own trajectory and be formulated so that the difference between them is represented by a few parameters. In addition, we should impose the prior knowledge that the two groups are equivalent at baseline. Finally, we know that the population mean curve is likely to change smoothly, not overnight. Even if particular patients experience sudden changes, it is unlikely this sudden change will occur at the same time for every subject. Hence, the mean will change more smoothly. 
+
+A sensible mean model includes a smooth function of follow-up time for the placebo group, a smooth difference between the haloperidol and placebo mean curve. Below we will use a straight line function of time and a natural cubic spline with 2 internal knots or equivalently 3 degrees of freedom to allow for non-linear trajectories. 
+
+We can write the model: 
+  \[ 
+    \mbox{E}(Y_{ij}|x_{ij}) = \beta_0 + \mbox{ns}(t_{ij},df=3;\beta_1) +  \mbox{ns}(t_{ij},df=3;\beta_2)*1_{\{trt=PLACEBO\}}.
+    \]
+
+In addition to the mean model, we know a priori that the repeated observations on subjects are likely to be *autocorrelated*.  We will look at exactly how below. But to get started, we should acknowledge that people are likely to have varying intensities of schizophenia, and therefore varying levels of symptoms. We can represent this heterogeneity with a random intercept. We might also expect that people will have varying responses to the treatment so that their trajectories may be heterogeneous. This possibility can be represented by a random slope. We could make the entire natural spline random but with a maximum of only 6 observations per person, fitting 4 random effects is too ambitious. 
+
+So, to get started we will use a linear mixed model with the fixed effects: spline function of time and the interaction of the spline with treatment but without a main effect for treatment (why?). We will also include random effects for the intercept and linear time.
+
+3. Draw a picture of this model for one person including the fixed and random effects. Label all of the parameters and random effects in your figure.  
+
+Below we will fit the model described above and a few others that will help us think further about models for longitudinal data. Specifically, we will fit a version of the model in which a straight line is used for time rather than a curvilinear spline to see how biased the results are if we impose linearity. We will also fit both the linear and spline models with the linear mixed model (LMM) and by ordinary least squares (OLS) to see how biased the results are when we ignore the autocorrelation that we expect to see. 
+Let's fit all of the models now to use for learning and for executing the *DID* part of QuODDID.
+
+```{r}
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+d = read_csv("panss1.csv")
+
+table(d$time)
+hist(d$pospan)
+
+# subset the data to include placebo and haloperidol only and to drop visit at time = -1
+d1=d %>% filter(treatmnt=="HALOPERIDOL" | treatmnt=="PLACEBO")
+d1=d1 %>% filter(time > -1)
+#
+# regress positive symptom score on a natural spline of time with 2 and 4 degrees of freedom using 
+# ordinary least square
+#
+mod1=lmer(data=d1,pospan~time + time:treatmnt +(time|id),REML=FALSE)
+mod2=lmer(data=d1,pospan~ns(time,3)+ns(time,3):treatmnt+(time|id),REML=FALSE)
+mod2.null=lmer(data=d1,pospan~ns(time,3)+(time|id),REML=FALSE)
+#
+# test for treatment effect using models 1 and 2 
+#
+summary(mod1)
+summary(mod2)
+summary(mod2.null)
+#
+# Test for treatment effect using likelihood ratio test with 3 df
+#
+lrtest(mod2.null,mod2)
+#
+# test whether the spline function improves upon the linear function of time
+#
+lrtest(mod1, mod2)
+#
+d1$pred1 = predict(mod1,re.form=NA)
+d1$pred2 = predict(mod2,re.form=NA)
+d1$pred2_re = predict(mod2,re.form=NULL)
+#
+
+# re-estimate the linear and spline models using OLS, rather than a linear mixed model
+#
+mod3=lm(data=d1,pospan~time + time:treatmnt )
+mod4=lm(data=d1,pospan~ns(time,3)+ns(time,3):treatmnt)
+#
+summary(mod3)
+summary(mod4)
+#
+pred3=predict(mod3)
+pred4=predict(mod4)
+#
+d1$pred3=pred3
+d1$pred4=pred4
+#
+# test whether the linear mixed effects model improves upon the ordinary least squares model
+lrtest(mod2,mod4)
+```
+#### D stands for Display
+
+#### Spaghetti Plots
+
+The simplest and most useful visualization for longitudinal data is the *spaghetti plot* in which each person's repeated observations are plotted against time, connected by a line to form a single strand of spaghetti. The basic shaghetti plot is shown below in the upper left.  Note that time has been jittered and the two treatment groups shifted slightly in time so we can see the individual's curves more clearly. Then in the upper right, the fitted values from a linear mixed model with random intercept and slope have been added as solid lines. Finally, in the lower left, boxplots of the observations stratified by time and treatment have been added. 
+
+Answer the following questions about these plots
+
+4. Based upon spaghetti plot 1 (SP1), estimate the standard deviation and variance of the random intercept (time 0). 
+
+5. How might you improve SP1 so the trajectories for individuals are more easily studied
+
+6. Notice the lines that end before time 8; these are drop-outs. What predicts dropping out?
+
+7. The LMM means in SP2 seem to be higher than observed points might suggest. Why?
+
+```{r,fig.align='center',fig.cap ="Spaghetti plot in which the repeated observations for each individual are connected to show variation within and among individuals."}
+#
+d1$time_jitter=d1$time + 0.5*(runif(length(d1$time)) - 0.5) + 0.2*ifelse(d1$treatmnt=="PLACEBO",0,1)
+d1$trt_col=ifelse(d1$treatmnt=="PLACEBO","red","blue")
+#
+spagh_plot1=ggplot() +
+  geom_point(data=d1,aes(x=time_jitter,y=pospan,group=treatmnt,col=trt_col),alpha=0.2) +
+  geom_line(data=d1,aes(x=time_jitter,y=pospan,group=id,col=trt_col),alpha=0.1) +
+  ggtitle("SP1")  + xlab("Time") + theme(legend.position='none')
+#
+spagh_plot2=ggplot() +
+  geom_point(data=d1,aes(x=time_jitter,y=pospan,group=treatmnt,col=trt_col),alpha=0.2) +
+  geom_line(data=d1,aes(x=time_jitter,y=pospan,group=id,col=trt_col),alpha=0.1) +
+  geom_line(data=d1,aes(x=time,y=pred2,group=treatmnt,col=trt_col)) + 
+  theme(legend.position='none') + ggtitle("SP2 with LMM fit") + 
+  xlab("Time") + theme(legend.position='none')
+#
+d1$time_shift=d1$time + ifelse(d1$treatmnt=="PLACEBO",-0.1,.1)
+spagh_plot3=ggplot() +
+  geom_point(data=d1,aes(x=time_jitter,y=pospan,group=treatmnt,col=trt_col),alpha=0.2) +
+  geom_line(data=d1,aes(x=time_jitter,y=pospan,group=id,col=trt_col),alpha=0.1) +
+  geom_line(data=d1,aes(x=time,y=pred2,group=treatmnt,col=trt_col)) + 
+  geom_boxplot(data=d1,aes(x=time,y=pospan,group=time_shift,col=trt_col)) +
+  theme(legend.position='none') + ggtitle("SP3 with Boxplots and LMM fit") +
+  xlab("Time") + theme(legend.position='none')
+#
+spagh_plot1 + spagh_plot2 
+spagh_plot3
+```
+#### Display of autocorrelation
+We started by fitting a random intercept and slope linear mixed model. But we did not check the nature of the autocorrelation. Perhaps a different correlation assumption would be better. 
+
+Below find code to generate the correlation and covariance matrices. 
+
+8. Describe the pattern in the variances over time
+
+9. Is the correlation pattern stationary - why or why not?
+
+10. In a few sentences, explain why the random intercept/slope model is a reasonable one for this study. Why not make the entire cubic spline random?
+
+```{r, fig.align='center',fig.cap="Pairs plot that shows autocorrelation among residuals at all pairs of times."}
+# Reshape the data to wide format
+d1$resid=d1$pospan - d1$pred2
+d1.wide <- d1 %>% select(id, time, resid) %>%
+spread(key = time, value = resid, sep = "")
+
+# Generate the scatterplot matrix
+d1.wide %>% select(-id) %>% pairs
+
+# Generate the correlation matrix
+options(digits = 2) 
+	# print fewer digits makes it easier to look at
+	# the correlation matix
+d1.wide %>% select(-id) %>% cor(use="pairwise.complete.obs") 
+
+# Generate the variance matrix
+d1.wide %>% select(-id) %>% cov(use="pairwise.complete.obs") 
+```
+#### I stands for Inference
+
+#### Comparing linear mixed model and ordinary least squares results
+
+```{r,fig.align='center',fig.cap ="Left: Comparison of predicted values using LMM with time vs ns(time,3) as the time predictors; Right: Comparison of LMM and OLS predictions for the model with ns(time, 3). dashed lines for placebo; solid lines for haloperidol groups."}
+#
+# compare predicted values from spline model using linear mixed model 
+# and ordinary linear regression. The difference is substantially attributed to
+# how missing values are handled.
+#
+#
+plot1=ggplot() +
+  geom_point(data=d1,aes(x=time_jitter,y=pospan,group=treatmnt,col=treatmnt),alpha=0.2) +
+  geom_line(data=d1,aes(x=time,y=pred1,group=treatmnt,linetype=treatmnt),col="blue") +
+  geom_line(data=d1,aes(x=time,y=pred2,group=treatmnt,linetype=treatmnt,col=treatmnt),
+            col="purple") + theme(legend.position='none') + ggtitle("LMM")
+#
+ plot2=ggplot() +
+  geom_point(data=d1,aes(x=time_jitter,y=pospan,group=treatmnt,col=treatmnt),alpha=0.2) +
+  geom_line(data=d1,aes(x=time,y=pred2,group=treatmnt,linetype=treatmnt,col=treatmnt),
+            col="purple") +
+  geom_line(data=d1,aes(x=time,y=pred4,group=treatmnt,linetype=treatmnt),col="red") + theme(legend.position='none')+ ggtitle("OLS")
+ 
+plot1 + plot2
+```
+#### Questions about linear mixed models versus ordinary least squares
+
+11. We have fit the same basis vectors of time with ordinary least squares (OLS) and with a linear mixed effects model (LMM) with random intercepts and time. Make a table comparing the inferences (e.g. estimates, confidence intervals, tests of treatment effects  from the two methods. Describe the difference in the inferences between the OLS and LMM models.
+
+12. Which method - OLS or LMM - will give more valid statistical inferences about the true population difference in the treatment group mean curves? Why?
+
+### Testing whether the two treatment groups have different mean time curves
+
+From the linear mixed effects model with random intercept and slope, the estimated regression coefficients are: `r round(summary(mod2)$coefficients[,1],3)`.
+
+The covariance matrix for the coefficients is estimated to be: 
+```{r}
+round(matrix(summary(mod2)$vcov,ncol=7),5)
+```
+
+and the random effects covariance matrix and residual variance estimates are: 
+```{r}
+summary(mod2)$varcor
+```
+
+To test the null hypothesis that the two treatment groups have the same mean function of time, we compare model 2 that allows for different treatment trajectories to the null model 2 (called mod2.null) that assumes a common trajectory. 
+
+```{r}
+lrtest(mod2.null, mod2)
+```
+
+Note that the log-likelihood values for the two models are `r lrtest(mod2.null,mod2)$LogLik` on  `r lrtest(mod2.null,mod2)$Df[2]` degrees of freedom.
+
+The Chi-square test statistics is `r round(lrtest(mod2.null,mod2)$Chisq[2],3)` with associated p-value 
+`r round(lrtest(mod2.null,mod2)[,5][2],5)`.
+
+13. What do we conclude about the effect of haloperidol relative to placebo mean positive symptoms? Be careful of the sign of the treatment effect.
+
+#### I also stands for *Interpretation* of model results
+
+We can use the fitted model to estimate the difference in mean time-curves between the two treatment groups and to provide a confidence interval for the difference at teach time. An easy approach is to use let $A$ be the design matrix for the 3 interaction terms so that the fitted values are $A\hat{\beta}$ with $t=0,1,2,4,6,8$. Here $\hat{\beta}$ is the vector of 3 regression coefficients for the interactions of time and treatment group and A is the $6 \times 3$ design matrix comprising the 3 basis columns for the natural spline with 3 degrees of freedom, boundary knots at 0 and 8 and two internal knots at 1 and 4, evaluated at the 6 times $(0,1,4,6,8)$. We can obtain A with the R command *A=ns(c(0,1,2,4,6,8),Boundary.knots=c(0,8),knots=c(1,4))*.
+
+```{r,fig.align='center',fig.cap="Plot of estimated difference with 95 percent confident interval in mean positive symptoms score comparing placebo to haloperidol groups (positive means fewer symptoms on haloperidol."}
+A=matrix(ns(c(0,1,2,4,6,8),Boundary.knots=c(0,8),knots=c(1,4)),ncol=3)
+b=matrix(summary(mod2)$coefficients[5:7,1],ncol=1)
+var_b=summary(mod2)$vcov[5:7,5:7]
+fit=A %*% b
+var_fit = A %*% var_b %*% t(A)
+se_fit = sqrt(diag(var_fit))
+result=data.frame(time=c(0,1,2,4,6,8),fit=fit,se_fit=se_fit,ci_l=fit-2*se_fit,ci_u=fit+2*se_fit)
+#
+# plot results
+ggplot(data=result,aes(x=time, y=fit)) + geom_point() + geom_line() +
+  geom_abline(intercept=0,slope=0,col="red") + 
+  geom_line(aes(x=time,y=ci_l),col="blue") +
+  geom_line(aes(x=time,y=ci_u),col="blue") + 
+  ylim(-5,15) + ylab("Mean pospan difference") + 
+  xlab("Time in weeks")
+```
+#### Checking the model for the mean and covariance against the patterns in the data
+
+We compared the observed mean pospan score at each time x treatment combination with the model predictions in a figure above. The model predictions show a steeper decline in both groups relative to the observations. This is because the model predictions are the means for everyone who started the study, but the observed data means are for only those people who remain in the study, ignoring the drop-outs. We can see in the individual trajectories that before dropping-out people tend to have a rise in their symptoms score. Or said another way, sicker people tend to drop out more than people doing well on their treatment. 
+
+To compare the model fit with the data, we must compare apples to apples. We should compare the model predictions that include the fixed and random effects (BLUPs) to the observations for only the times where both are available. 
+
+```{r, fig.align='center',fig.cap="Plot of means of observed data and mean person-specific predictions (BLUPs) by treatment group and time. "}
+d1_means = d1  %>% group_by(time,treatmnt) %>% summarise(mean_pred2=mean(pred2_re),
+                                                         mean_obs=mean(pospan))
+spagh_plot4=ggplot() +
+  geom_point(data=d1,aes(x=time_jitter,y=pospan,group=treatmnt,col=trt_col),alpha=0.2) +
+  geom_line(data=d1,aes(x=time_jitter,y=pospan,group=id,col=trt_col),alpha=0.1) +
+  geom_line(data=d1_means,aes(x=time,y=mean_pred2,group=treatmnt,linetype=treatmnt),col="green") + 
+  geom_line(data=d1_means,aes(x=time,y=mean_obs,group=treatmnt,linetype=treatmnt),col="blue") + 
+  theme(legend.position='none') + ggtitle("Spaghetti Plot with Observed and Model 2 BLUP Means") +
+  xlab("Time") + theme(legend.position='none')
+
+spagh_plot4
+```
+#### Check the robustness of the test of treatment effect
+
+The log-likelihood test performed above requires that the model assumptions be close to correct that the data are approximately Gaussian and that the random intercept/slope adequately capture the sources of autocorrelation. We can check these inferences by using a Wald test with the robust covariance estimates as done below. 
+```{r}
+V_robust = vcovCR(mod2, type="CR1",form = "sandwich")
+
+test_stat_robust=matrix(summary(mod2)$coefficients[5:7,1],nrow=1) %*% 
+  solve(V_robust[5:7,5:7]) %*% matrix(summary(mod2)$coefficients[5:7,1],ncol=1)
+
+test_stat_model = matrix(summary(mod2)$coefficients[5:7,1],nrow=1) %*% 
+  solve(summary(mod2)$vcov[5:7,5:7]) %*% matrix(summary(mod2)$coefficients[5:7,1],ncol=1)
+
+p_robust = 1-pchisq(as.numeric(test_stat_robust),df=3)
+p_model = 1-pchisq(as.numeric(test_stat_model),df=3)
+result=list(test_model=test_stat_model, p_model=p_model, test_robust=test_stat_robust,
+            p_robust = p_robust)
+
+result
+```
+12. How do you interpret the comparison above between the model-based and robust Wald tests of the null hypothesis that there is not treatment difference between the two groups on the positive symptoms of schizophrenia?
+
+Finally, let's compare the model-based covariance matrix for the data with the one estimated above from the pairs plot. In its general expression, the linear mixed effects model is:
+  \[
+    y_{ij} = x_{ij} \beta + z_{ij} b_i + \epsilon_{ij}
+    \]
+and in this specific application, we have the form
+\[
+  pospan_{ij} = \beta_0 + ns(t_{ij},3; \beta_1) + ns(time_{ij},3; \beta_1)*treatmnt_i + b_{0i} + time_{ij} b_{1i} + \epsilon_{ij}.
+  \]
+where $(b_{0i}, b_{1i}) \sim G(0,D)$ and $\epsilon_{ij} \sim G(0,\sigma^2)$.
+
+From this model, we can calculate the covariance between $y_{ij}$ and $y_{ik}$ for $k \ge j=1,\ldots,n_i$ as follows.
+\[
+  \begin{split}
+  \mbox{cov}(y_{ij},y_{ik}) & = \mbox{E}\{(y_{ij}-x_{ij}\beta)(y_{ij}-x_{ik}\beta)\} \\
+  & = \mbox{E}\{(b_{0i} + b_{1i}t_{ij} + \epsilon_{ij})(b_{0i} + b_{1i}t_{ik} + \epsilon_{ik})\} \\
+  & = D_{00} + (t_{ij} + t_{ik})D_{01} + t_{ij}t_{ik}D_{11} +\sigma^2 1_{j=k}
+  \end{split}
+  \]
+We can use this formula to calculate the covariance matrix for a person's repeated measurements at the 6 times and compare the model estimates with the covariance matrix estimated from the residuals as displayed in the pairs plots. 
+```{r}
+t=c(0,1,2,4,6,8)
+Z=cbind(rep(1,6),t)
+D = matrix(c(31.9166,0.07*sqrt(31.9166*0.5893),0.07*sqrt(31.9166*0.5893),0.5893),ncol=2)
+sig2=12.0999
+V=Z %*% D %*% t(Z) + sig2*diag(rep(1,6))
+#
+V
+```
+14. How does this estimated matrix from our random intercept and slopd model campare to what was estimated above directly from the data?  Should they be similar?  Why or why not?
+

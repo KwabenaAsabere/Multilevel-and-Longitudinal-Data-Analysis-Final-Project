@@ -1,0 +1,491 @@
+---
+title: "DATA ANALYSIS"
+author: "KWABENA ASABERE"
+df-print: kable
+date: "`r Sys.Date()`"
+code-overflow: wrap
+execute: 
+  echo: true
+  warning: false
+  message: false
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+## 
+
+```{r}
+library(tidyverse)
+library(nlme)
+library(broom)
+library(finalfit)
+library(gtsummary)
+library(lmtest)
+library(lme4)
+library(clubSandwich)
+library(patchwork)
+theme_set(theme_bw())
+```
+
+```{r}
+heart_df <- read.table("aortic_valve.dat",header = TRUE)
+
+```
+
+```{r}
+df <- heart_df %>% 
+  mutate(
+    age = age %>% ff_label("Age(years)"),
+    sex = if_else(sex ==0,"Male","Female") %>% 
+      fct_relevel("Female") %>% 
+      ff_label("Sex"),
+    redo = if_else(redo ==0,"No","Yes") %>% 
+      fct_relevel("No") %>% 
+      ff_label("Previous Cardiac Surgery"),
+    emerg = if_else(emerg == 0,"Elective","Emergent") %>% 
+      fct_relevel("Elective") %>% 
+      ff_label("Operative Urgency"),
+    dm = if_else(dm ==0,"No","Yes") %>% 
+      fct_relevel("No") %>% 
+      ff_label("Preoperative Diabetes"),
+    type = if_else(type ==1,"Human Tissue","Porcine Tissue") %>% 
+      fct_relevel("Porcine Tissue") %>% 
+      ff_label("Type of Valve"),
+    lvmi =lvmi %>%  ff_label("LVMI"),
+    futime = futime %>% ff_label("Follow-up Time(years)"),
+    status = if_else(status == 0,"Censored","Death") %>% 
+      fct_relevel("Censored") %>% 
+      ff_label("Status")
+  )
+```
+
+```{r}
+df_new <- heart_df %>% 
+  group_by(id) %>% 
+  summarize(across(where(is.numeric), mean),
+            across(where(~ !is.numeric(.)), first)) %>% 
+  ungroup() %>% 
+  mutate(
+    age = age %>% ff_label("Age(years)"),
+    sex = if_else(sex ==0,"Male","Female") %>% 
+      fct_relevel("Female") %>% 
+      ff_label("Sex"),
+    redo = if_else(redo ==0,"No","Yes") %>% 
+      fct_relevel("No") %>% 
+      ff_label("Previous Cardiac Surgery"),
+    emerg = if_else(emerg == 0,"Elective","Emergent") %>% 
+      fct_relevel("Elective") %>% 
+      ff_label("Operative Urgency"),
+    dm = if_else(dm ==0,"No","Yes") %>% 
+      fct_relevel("No") %>% 
+      ff_label("Preoperative Diabetes"),
+    type = if_else(type ==1,"Human Tissue","Porcine Tissue") %>% 
+      fct_relevel("Porcine Tissue") %>% 
+      ff_label("Type of Valve"),
+    lvmi =lvmi %>%  ff_label("LVMI"),
+    futime = futime %>% ff_label("Follow-up Time(years)"),
+    status = if_else(status == 0,"Censored","Death") %>% 
+      fct_relevel("Censored") %>% 
+      ff_label("Status")
+  )
+```
+
+```{r}
+
+#| label: "Table One"
+#| tbl-cap: "**TABLE ONE**"
+df_new %>% select(-c(time,id)) %>% 
+  tbl_summary(by = type,
+    statistic =
+      list(all_categorical() ~ "{n} ({p}%)",
+           all_continuous() ~ "{mean} ({sd})"),
+    digits = list(all_categorical() ~ 0,
+                  all_continuous() ~ 0),
+  ) %>%
+  add_overall() %>%
+  bold_labels() %>%
+  italicize_levels() %>%
+  modify_spanning_header(
+    update = all_stat_cols() ~ "**Type of Valve**"
+  ) %>% 
+  modify_footnote(update = all_stat_cols() ~
+      "*mean(standard deviation) for continuous; n(%) for categorical*")
+```
+
+```{r}
+heart_df <-  heart_df %>% 
+  mutate(across(
+    sex:type,
+    as_factor
+  )) %>% 
+  mutate(log_lvmi = log(lvmi),
+         type = if_else(type ==1,0,1))
+```
+
+#### Model 1 with no interaction term of time and type
+
+```{r}
+model1 <- heart_df %>% 
+  lmer(lvmi ~ time + age + sex + redo + emerg + dm + type + 
+         (time|id),REML = FALSE, data = .)
+
+summary(model1)
+```
+
+#### Model 2 with interaction of time and type
+
+```{r}
+model2 <- heart_df %>% 
+  lmer(lvmi ~ time + age + sex + redo + emerg + dm + type + time:type +
+         (time|id),REML = FALSE, data = .)
+
+summary(model2)
+```
+
+#### Likelihood ratio test of  Model 1 and Model2 
+
+```{r}
+lrtest(model1,model2)
+```
+
+We fail to reject the null hypothesis that the interaction term does not improve model 2 compared to model 1 (p-value = 0.605)
+
+#### Model 3 with log transformation of the response variable `lvmi`
+
+```{r}
+
+q <- heart_df %>% 
+  ggplot(aes(sample = lvmi))+
+  stat_qq()+
+  stat_qq_line()+
+  labs(
+    title = "Q-Q Plot of LVMI",
+    x = "Theoretical Quantiles",
+    y = "Sample Quantiles"
+  )+
+  theme(plot.title = element_text(hjust = 0.5, size = 14, face="bold"))
+
+h <- heart_df %>% 
+  ggplot(aes(x = lvmi))+
+  geom_histogram(fill = "steelblue",color = "white")+
+  labs(x = "Left Ventricular Mass Index",
+       y = "Frequency",
+       title = "Distribution of LVMI")+
+  theme(plot.title = element_text(hjust = 0.5, size = 14, face="bold") )
+
+q + h
+
+```
+
+The distribution of LVMI is positively skewed, with most values concentrated between 100 and 250, as seen in the histogram, while a small number of outliers extend up to 600. The Q-Q plot further highlights the non-normality, with the data deviating substantially from the theoretical line, particularly in the upper tail, indicating extreme values. This suggests that the data may benefit from a transformation, such as a logarithmic scale, to improve normality and reduce the influence of outliers for further analysis.
+
+```{r}
+
+q1 <- heart_df %>% 
+  ggplot(aes(sample = log(lvmi)))+
+  stat_qq()+
+  stat_qq_line()+
+  labs(
+    title = " LOG-TRANSFORMED LVMI",
+    x = "Theoretical Quantiles",
+    y = "Sample Quantiles"
+  )+
+  theme(plot.title = element_text(hjust = 0.5, size = 14, face="bold"))
+
+h1 <- heart_df %>% 
+  ggplot(aes(x = log(lvmi)))+
+  geom_histogram(fill = "steelblue",color = "white")+
+  labs(x = "Log LVMI",
+       y = "Frequency")+
+  theme(plot.title = element_text(hjust = 0.5, size = 14, face="bold"))
+
+q1 + h1
+```
+
+The log-transformation of LVMI results in a more symmetric, approximately normal distribution, as shown in the histogram, with values centered around 4.5 to 5.5. This transformation addresses the skewness seen in the original data and minimizes the influence of outliers. The Q-Q plot further supports this improvement, with data points closely aligning with the theoretical quantiles, indicating that the log-transformed LVMI better meets the assumptions of normality.
+
+```{r}
+model3 <-  heart_df %>% 
+  lmer(log_lvmi ~ time + age + sex + redo + emerg + dm + type + 
+         (time|id),REML = FALSE, data = .)
+
+summary(model3)
+```
+
+#### Likelihood ratio test to compare model 1 and model 3 
+
+```{r}
+lrtest(model1,model3)
+```
+
+The log-likelihood of Model 2 (-102.1) is substantially higher than that of Model 1 (-5246.8), resulting in a large test statistic (chi sq = 10289) and a highly significant p-value ( \< 2.2 x 10\^-16).This indicates that the log-transformed model provides a vastly better fit to the data compared to the original LVMI model.
+
+#### Model 4 with square root transformation of time 
+
+```{r}
+
+
+q2 <- heart_df %>% 
+  ggplot(aes(sample = time ))+
+  stat_qq()+
+  stat_qq_line()+
+  labs(
+    title = "Q-Q Plot of Time",
+    x = "Theoretical Quantiles",
+    y = "Sample Quantiles"
+  )+
+  theme(plot.title = element_text(hjust = 0.5, size = 14, face="bold"))
+
+
+h2 <- heart_df %>% 
+  ggplot(aes(x = time))+
+  geom_histogram(fill = "steelblue",color = "white")+
+  labs(x = "Left Ventricular Mass Index",
+       y = "Frequency",
+       title = "Distribution of Time")+
+  theme(plot.title = element_text(hjust = 0.5, size = 14, face="bold"))
+
+q2+ h2
+```
+
+The distribution of the variable "Time" is highly right-skewed, as depicted in the histogram, with a large concentration of values near 0 and a progressively decreasing frequency as time increases. The Q-Q plot reinforces this observation, showing significant deviations from the theoretical normal line, particularly in the upper tail, which indicates the presence of extreme values or outliers. This non-normal distribution suggests that a transformation or alternative statistical approach may be necessary to address the skewness for further analysis.
+
+```{r}
+
+
+heart_df %>% 
+  ggplot(aes(sample = sqrt(time)))+
+  stat_qq()+
+  stat_qq_line()+
+  labs(
+    title = "Q-Q Plot of Square root Transformed Time",
+    x = "Theoretical Quantiles",
+    y = "Sample Quantiles"
+  )+
+  theme(plot.title = element_text(hjust = 0.5, size = 14, face="bold"))
+```
+
+```{r}
+
+heart_df %>% 
+  ggplot(aes(x = sqrt(time)))+
+  geom_histogram(fill = "steelblue",color = "white", bins = 13)+
+  labs(x = "Left Ventricular Mass Index",
+       y = "Frequency",
+       title = "Distribution of Square root Transformed Time")+
+  theme(plot.title = element_text(hjust = 0.5, size = 14, face="bold") )
+```
+
+The square root transformation of "Time" significantly improves the symmetry of its distribution, as shown in the histogram, which now appears approximately bell-shaped with reduced skewness. The Q-Q plot indicates an improved alignment with the theoretical quantiles compared to the original data, although slight deviations remain in the tails. This transformation effectively mitigates the extreme skewness seen in the original variable and is a suitable approach for enhancing normality and stabilizing variance for further statistical analyses.
+
+```{r}
+model4 <-  heart_df %>% 
+  lmer(log_lvmi ~ sqrt(time) + age + sex + redo + emerg + dm + type + 
+         (sqrt(time)|id),REML = FALSE, data = .)
+
+summary(model4)
+```
+
+```{r}
+lrtest(model3,model4)
+```
+
+the LRT suggests that square root transformation of time​ better captures the relationship with the log-transformed LVMI, improving model fit significantly. Therefore, using the square root transformation of time is more appropriate for this analysis.
+
+#### Model 4 Diagnostics
+
+```{r}
+model4_summ <- summary(model4)
+
+model_resid <- model4_summ$residuals
+
+resids <- as_tibble(model_resid) %>% 
+  mutate(residuals = value) %>% 
+  select(residuals)
+
+preds <- predict(model4) %>% 
+  as_tibble() %>% 
+  mutate(preds = value) %>% 
+  select(preds)
+
+model4_diags <- cbind(preds,resids)
+
+model4_diags %>% head()
+```
+
+```{r}
+
+model4_diags %>% 
+  ggplot(aes(sample = residuals))+
+  stat_qq()+
+  stat_qq_line()+
+  labs(
+    title = "Q-Q Plot of Residuals",
+    x = "Theoretical Quantiles",
+    y = "Sample Quantiles"
+  )+
+  theme(plot.title = element_text(hjust = 0.5, size = 14, fac="bold"))
+
+```
+
+```{r}
+model4_diags %>% 
+  ggplot(aes(x = preds, y = residuals))+
+  geom_point(alpha = 0.3)+
+  geom_hline(yintercept = 0,linetype = "dashed",color = "red",linewidth = 0.7)+
+  labs(x = "Fitted", y = "Residuals")
+```
+
+The residuals appear randomly scattered around the horizontal line at 0, which indicates no clear pattern. This suggests that the model assumptions of linearity and homoscedasticity (constant variance of residuals) are reasonable.
+
+The Q-Q plot shows that the residuals are approximately normally distributed for most of their range, as they follow the theoretical quantile line closely in the middle section.
+
+However, there are deviations in both tails, particularly in the upper tail, indicating the presence of outliers or slight departures from normality.
+
+The diagnostic plots generally support the model's validity, as the residuals appear to meet the key assumptions of normality and homoscedasticity, with only minor deviations.
+
+### SPHAGETTI PLOTS
+
+```{r}
+lvmi_summary_type <- df %>% 
+  group_by(type,time) %>% 
+  summarise(mean_lvmi = mean(lvmi))
+```
+
+#### Sphagetti Plot of Observed LVMIs
+
+```{r}
+df |> 
+  ggplot()+
+  geom_line(aes(group = id,x =time, y= lvmi,color = type),alpha = 0.2)+
+  geom_smooth(data = lvmi_summary_type,aes(group = type, x= time, y = mean_lvmi,color = type),se = FALSE)+
+  labs(x ="Years Since Valve Replacement",
+       y = "Left Ventricular Mass Index",
+       title = " Trajectory of LVMI Regression by Type of Valve",
+       color = "Valve Type")+
+  theme(legend.position = c(1,1),legend.justification = c(1,1),
+        plot.title = element_text(hjust = 0.5, size = 14, fac="bold"))
+```
+
+```{r}
+preds4 <- predict(model4)
+df$preds = exp(preds4)
+
+
+lvmi_summary_type <- df %>% 
+  group_by(type,time) %>% 
+  summarise(mean_lvmi = mean(lvmi),
+            mean_pred_lvmi = mean(preds)) %>% 
+  mutate(type_col = if_else(type == "Porcine Tissue","red","blue"))
+```
+
+#### Sphagetti Plot of Predicted LVMIs
+
+```{r}
+
+ggplot()+
+  geom_line(data = df,aes(group = id,x =time, y= preds,color = type),alpha = 0.2)+
+  geom_smooth(data = lvmi_summary_type,aes( group = type,x = time, y = mean_pred_lvmi,color = type),
+              se = FALSE)+
+  labs(x ="Years Since Valve Replacement",
+       y = " Predicted Left Ventricular Mass Index",
+       title = " Trajectory of Predicted LVMI Regression by Type of Valve",
+       color = "Valve Type")+
+  theme(legend.position = c(1,1),legend.justification = c(1,1),
+        plot.title = element_text(hjust = 0.5, size = 14, fac="bold"))
+```
+
+#### Sphagetti Plot of Observed Vs Predicted LVMIs
+
+```{r}
+
+df |> 
+  ggplot()+
+  geom_line(aes(group = id,x =time, y= lvmi,color = type),alpha = 0.2)+
+  geom_smooth(data = lvmi_summary_type,aes(group = type, x= time, y = mean_lvmi,color = type,linetype = type),se = FALSE)+
+  geom_smooth(data = lvmi_summary_type,aes(group= type, x = time, y = mean_pred_lvmi,color = type,linetype = type),se = FALSE)+
+  labs(x ="Years Since Valve Replacement",
+       y = "Left Ventricular Mass Index",
+       title ="LVMI Regression by Type of Valve: Observed vs Predicted Trajectory",
+       color = "Valve Type",
+       linetype = "Valve Type")+
+  theme(legend.position = c(1,1),legend.justification = c(1,1),
+        plot.title = element_text(hjust = 0.5, size = 14, fac="bold"))
+
+
+```
+
+### INTEPRETATION OF MODEL RESULTS
+
+The covariance metric for the coefficients is estimated to be
+
+```{r}
+k <- length(fixef(model4))
+round(matrix(summary(model4)$vcov, ncol = k), 5)
+
+```
+
+and the random effects covariance matrix and residual variance estimates are:
+
+```{r}
+
+summary(model4)$varcor
+```
+
+To test the null hypothesis that the two valve types have the same mean LVMI regression as a function of time, we compare model 4 that allows for different treatment trajectories to the null model 4 (called mod4.null) that assumes a common trajectory.
+
+```{r}
+model4.null <-  heart_df %>% 
+  lmer(log_lvmi ~ sqrt(time) + age + sex + redo + emerg + dm + 
+         (sqrt(time)|id),REML = FALSE, data = .)
+
+summary(model4.null)
+```
+
+```{r}
+lrtest(model4.null,model4)
+```
+
+The log-likelihood values for the two models are -89.112,-87.718 on 1 degree of freedom. The Chi-square test statistics is 2.7885 with associated p-value 0f 0.09494.This shows weak evidence that the two valve types have different mean LVMI trajectories over time.
+
+### Check the robustness of the test of treatment effect
+
+The log-likelihood test performed above requires that the model assumptions be close to correct that the data are approximately Gaussian and that the random intercept/slope adequately capture the sources of autocorrelation. We can check these inferences by using a Wald test with the robust covariance estimates as done below.
+
+```{r}
+
+# Compute the robust variance-covariance matrix
+V_robust <- vcovCR(model4, type = "CR1", form = "sandwich")
+
+# Extract the coefficient for 'type' and its variance (from robust vcov)
+coef_type <- summary(model4)$coefficients["type", "Estimate"]
+var_type_robust <- V_robust["type", "type"]
+
+# Wald test statistic using robust variance
+test_stat_robust <- (coef_type^2) / var_type_robust
+
+
+# p-value for robust Wald test
+p_robust <- 1 - pchisq(test_stat_robust, df = 1)
+
+# Wald test statistic using model's standard variance
+var_type_model <- summary(model4)$vcov["type", "type"]
+test_stat_model <- (coef_type^2) / var_type_model
+
+# p-value for model-based Wald test
+p_model <- 1 - pchisq(test_stat_model, df = 1)
+
+# Combine results
+result <- list(
+  test_model = test_stat_model,
+  p_model = p_model,
+  test_robust = test_stat_robust,
+  p_robust = p_robust
+)
+
+result
+```
+
+The Wald test results indicate that the coefficient for **`type`** is not statistically significant (p>0.05). Therefore, there is insufficient evidence to conclude that valve type has an effect on the log-transformed LVMI.

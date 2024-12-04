@@ -1,5 +1,5 @@
 ---
-title: "FINAL PROJECT- PART ONE"
+title: "FINAL PROJECT-PART ONE"
 author: "Asabere Kwabena Asante"
 format: html
 df-print: kable
@@ -18,6 +18,9 @@ library(tidyverse)
 library(haven)
 library(finalfit)
 library(gtsummary)
+library(lme4)
+library(nlme)
+library(broom)
 theme_set(theme_bw())
 ```
 
@@ -64,21 +67,7 @@ df <- heart_df %>%
   )
 ```
 
-```{r}
-df %>% select(-c(time,id)) %>% 
-  tbl_summary(
-    statistic =
-      list(all_categorical() ~ "{n} ({p}%)",
-           all_continuous() ~ "{mean} ({sd})"),
-    digits = list(all_categorical() ~ 0,
-                  all_continuous() ~ 0),
-  ) %>%
-  #add_overall() %>%
-  bold_labels() %>%
-  italicize_levels() %>%
-  modify_footnote(update = all_stat_cols() ~
-      "*mean(standard deviation) for continuous; n(%) for categorical*")
-
+```         
 ```
 
 ```{r}
@@ -108,7 +97,8 @@ df %>%
   geom_histogram(fill = "steelblue",color = "black",bins = 20)+
   labs(x = "Left Ventricular Mass Index",
        y = "Frequency",
-       title = "Distribution of Left Ventricular Mass Index")
+       title = "Distribution of Left Ventricular Mass Index")+
+theme(plot.title = element_text(hjust = 0.5, size = 14, face = "bold"))
 ```
 
 ```{r}
@@ -117,7 +107,8 @@ df %>%
   geom_histogram(fill = "steelblue",color = "black",bins = 20)+
   labs(x = " Log Left Ventricular Mass Index",
        y = "Frequency",
-       title = "Log-Transformed Distribution of Left Ventricular Mass Index")
+       title = "Log-Transformed Distribution of Left Ventricular Mass Index")+
+  theme(plot.title = element_text(hjust = 0.5, size = 14, face = "bold"))
 ```
 
 ```{r}
@@ -128,7 +119,8 @@ df %>%
        y = "Frequency",
        title = "Frequency of Events Among Study Participants",
        fill = "Event")+
-   theme(legend.position = c(1,1),legend.justification = c(1,1))
+   theme(legend.position = c(1,1),legend.justification = c(1,1),
+  plot.title = element_text(hjust = 0.5, size = 14, face = "bold"))
 
 ```
 
@@ -138,7 +130,8 @@ df |>
   geom_line(aes(group = id,x =time, y= lvmi),color = "grey",alpha = 1)+
   labs(x = "Years Since Valve Replacement",
   y = "Left Ventricular Mass Index",
-  title = "Individual Trajectories of LVMI Regression Post Aortic Valve Surgey")
+  title = "Individual Trajectories of LVMI Regression Post Aortic Valve Surgey")+
+  theme(plot.title = element_text(hjust = 0.5, size = 14, face = "bold"))
 ```
 
 ```{r}
@@ -150,13 +143,14 @@ lvmi_summary_status <- df %>%
 ```{r}
 df |> 
   ggplot()+
-  geom_line(aes(group = id,x =time, y= lvmi),color = "grey",alpha = 1)+
+  geom_line(aes(group = id,x =time, y= lvmi,colour = status),alpha = 0.2)+
   geom_smooth(data = lvmi_summary_status,aes(group = status, x= time, y = mean_lvmi,color = status),se = FALSE)+
   labs(x ="Years Since Valve Replacement",
        y = "Left Ventricular Mass Index",
        title = " Trajectory of LVMI Regression Post Aortic Valve Replacement Surgery by Event",
        color = "Event Status")+
-  theme(legend.position = c(1,1),legend.justification = c(1,1))
+  theme(legend.position = c(1,1),legend.justification = c(1,1),
+        plot.title = element_text(hjust = 0.5, size = 14, face = "bold"))
 
  
 ```
@@ -170,32 +164,61 @@ lvmi_summary_type <- df %>%
 ```{r}
 df |> 
   ggplot()+
-  geom_line(aes(group = id,x =time, y= lvmi),color = "grey",alpha = 1)+
+  geom_line(aes(group = id,x =time, y= lvmi,color = type),alpha = 0.2)+
   geom_smooth(data = lvmi_summary_type,aes(group = type, x= time, y = mean_lvmi,color = type),se = FALSE)+
   labs(x ="Years Since Valve Replacement",
        y = "Left Ventricular Mass Index",
        title = " Trajectory of LVMI Regression by Type of Valve",
        color = "Valve Type")+
-  theme(legend.position = c(1,1),legend.justification = c(1,1))
+  theme(legend.position = c(1,1),legend.justification = c(1,1),
+        plot.title = element_text(hjust = 0.5, size = 14, fac="bold"))
 
 
 ```
 
 ```{r}
-df %>% select(-c(time,id)) %>% 
-  tbl_summary(by = type,
-    statistic =
-      list(all_categorical() ~ "{n} ({p}%)",
-           all_continuous() ~ "{mean} ({sd})"),
-    digits = list(all_categorical() ~ 0,
-                  all_continuous() ~ 0),
-  ) %>%
-  add_overall() %>%
-  bold_labels() %>%
-  italicize_levels() %>%
-  modify_spanning_header(
-    update = all_stat_cols() ~ "**Type of Valve**"
-  ) %>% 
-  modify_footnote(update = all_stat_cols() ~
-      "*mean(standard deviation) for continuous; n(%) for categorical*")
+heart_df %>% 
+  ggplot(aes(sample = lvmi))+
+  stat_qq(color = "steelblue")+
+  stat_qq_line()+
+  labs(
+    title = "Q-Q Plot of LVMI",
+    x = "Theoretical Quantiles",
+    y = "Sample Quantiles"
+  )+
+  theme( plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+         axis.title = element_text(size = 12),
+         axis.text = element_text(size = 10))
+```
+
+```{r}
+heart_df %>% 
+  ggplot(aes(sample = log(lvmi)))+
+  stat_qq(color = "steelblue")+
+  stat_qq_line()+
+  labs(
+    title = "Q-Q Plot of LVMI",
+    x = "Theoretical Quantiles",
+    y = "Sample Quantiles"
+  )+
+  theme( plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+         axis.title = element_text(size = 12),
+         axis.text = element_text(size = 10))
+```
+
+```{r}
+heart_df <-  heart_df %>% 
+  mutate(type = if_else(type == 1,0,1)) %>% 
+  mutate(across(
+    sex:type,
+    as_factor
+  ))
+```
+
+```{r}
+glimpse(heart_df)
+```
+
+```{r}
+
 ```

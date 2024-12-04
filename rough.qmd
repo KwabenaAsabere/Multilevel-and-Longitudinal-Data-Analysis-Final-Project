@@ -1,0 +1,9 @@
+---
+title: "Untitled"
+format: html
+editor: visual
+---
+
+## 
+
+#### log_LVMIij​=β0​+β1​timeij​​+β2​ageij​+β3​sexij​+β4​redoij​+β5​emergij​+β6​dmij​+β7​typeij​+(b0i​+b1i​timeij​​)+ϵij

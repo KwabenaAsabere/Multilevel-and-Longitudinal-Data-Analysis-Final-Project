@@ -1,0 +1,181 @@
+---
+title: "FINAL PROJECT- PART ONE"
+author: "Asabere Kwabena Asante"
+format: html
+df-print: kable
+code-overflow: wrap
+execute: 
+  echo: true
+  warning: false
+  message: false
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(tidyverse)
+library(haven)
+library(finalfit)
+library(gtsummary)
+theme_set(theme_bw())
+```
+
+```{r}
+heart_df <- read.table("aortic_valve.dat",header = TRUE)
+heart_df %>% head()
+heart_df %>% 
+  summarise(subjects = n_distinct(id))
+```
+
+```{r}
+heart_df %>% 
+  ggplot(aes(x =futime))+
+  geom_histogram(fill = "steelblue",color = "black",bins = 20)+
+  labs( x= "Total follow-up time from date of surgery (years)",
+        y = "Frequency",
+        title = "Distribution of Total Follow-up Time")
+```
+
+```{r}
+df <- heart_df %>% 
+  mutate(
+    age = age %>% ff_label("Age(years)"),
+    sex = if_else(sex ==0,"Male","Female") %>% 
+      fct_relevel("Female") %>% 
+      ff_label("Sex"),
+    redo = if_else(redo ==0,"No","Yes") %>% 
+      fct_relevel("No") %>% 
+      ff_label("Previous Cardiac Surgery"),
+    emerg = if_else(emerg == 0,"Elective","Emergent") %>% 
+      fct_relevel("Elective") %>% 
+      ff_label("Operative Urgency"),
+    dm = if_else(dm ==0,"No","Yes") %>% 
+      fct_relevel("No") %>% 
+      ff_label("Preoperative Diabetes"),
+    type = if_else(type ==1,"Human Tissue","Porcine Tissue") %>% 
+      fct_relevel("Porcine Tissue") %>% 
+      ff_label("Type of Valve"),
+    lvmi =lvmi %>%  ff_label("LVMI"),
+    futime = futime %>% ff_label("Follow-up Time(years)"),
+    status = if_else(status == 0,"Censored","Death") %>% 
+      fct_relevel("Censored") %>% 
+      ff_label("Status")
+  )
+```
+
+
+
+```{}
+```
+
+
+
+```{r}
+#| label: "Table One"
+#| tbl-cap: "**TABLE ONE**"
+df %>% select(-c(time,id)) %>% 
+  tbl_summary(by = type,
+    statistic =
+      list(all_categorical() ~ "{n} ({p}%)",
+           all_continuous() ~ "{mean} ({sd})"),
+    digits = list(all_categorical() ~ 0,
+                  all_continuous() ~ 0),
+  ) %>%
+  add_overall() %>%
+  bold_labels() %>%
+  italicize_levels() %>%
+  modify_spanning_header(
+    update = all_stat_cols() ~ "**Type of Valve**"
+  ) %>% 
+  modify_footnote(update = all_stat_cols() ~
+      "*mean(standard deviation) for continuous; n(%) for categorical*")
+```
+
+```{r}
+df %>% 
+  ggplot(aes(x = lvmi))+
+  geom_histogram(fill = "steelblue",color = "black",bins = 20)+
+  labs(x = "Left Ventricular Mass Index",
+       y = "Frequency",
+       title = "Distribution of Left Ventricular Mass Index")
+```
+
+```{r}
+df %>% 
+  ggplot(aes(x = log(lvmi)))+
+  geom_histogram(fill = "steelblue",color = "black",bins = 20)+
+  labs(x = " Log Left Ventricular Mass Index",
+       y = "Frequency",
+       title = "Log-Transformed Distribution of Left Ventricular Mass Index")
+```
+
+```{r}
+df %>% 
+  ggplot(aes(x = status))+
+  geom_bar(aes(fill = status))+
+  labs(x = "Status",
+       y = "Frequency",
+       title = "Frequency of Events Among Study Participants",
+       fill = "Event")+
+   theme(legend.position = c(1,1),legend.justification = c(1,1))
+
+```
+
+```{r}
+df |> 
+  ggplot()+
+  geom_line(aes(group = id,x =time, y= lvmi),color = "grey",alpha = 1)+
+  labs(x = "Years Since Valve Replacement",
+  y = "Left Ventricular Mass Index",
+  title = "Individual Trajectories of LVMI Regression Post Aortic Valve Surgey")
+```
+
+```{r}
+lvmi_summary_status <- df %>% 
+  group_by(status,time) %>% 
+  summarise(mean_lvmi = mean(lvmi))
+```
+
+```{r}
+df |> 
+  ggplot()+
+  geom_line(aes(group = id,x =time, y= lvmi),color = "grey",alpha = 1)+
+  geom_smooth(data = lvmi_summary_status,aes(group = status, x= time, y = mean_lvmi,color = status),se = FALSE)+
+  labs(x ="Years Since Valve Replacement",
+       y = "Left Ventricular Mass Index",
+       title = " Trajectory of LVMI Regression Post Aortic Valve Replacement Surgery by Event",
+       color = "Event Status")+
+  theme(legend.position = c(1,1),legend.justification = c(1,1))
+
+ 
+```
+
+```{r}
+lvmi_summary_type <- df %>% 
+  group_by(type,time) %>% 
+  summarise(mean_lvmi = mean(lvmi))
+```
+
+```{r}
+df |> 
+  ggplot()+
+  geom_line(aes(group = id,x =time, y= lvmi),color = "grey",alpha = 1)+
+  geom_smooth(data = lvmi_summary_type,aes(group = type, x= time, y = mean_lvmi,color = type),se = FALSE)+
+  labs(x ="Years Since Valve Replacement",
+       y = "Left Ventricular Mass Index",
+       title = " Trajectory of LVMI Regression by Type of Valve",
+       color = "Valve Type")+
+  theme(legend.position = c(1,1),legend.justification = c(1,1))
+
+
+```
+
+```{r}
+head(df)
+
+
+df %>% group_by(time) %>%  
+  summarise(mean_lvmi = mean(lvmi))
+```
+
