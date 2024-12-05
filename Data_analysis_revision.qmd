@@ -1,0 +1,213 @@
+---
+title: "DATA ANALYSIS REVISION"
+format: html
+editor: visual
+df-print: kable
+date: "`r Sys.Date()`"
+code-overflow: wrap
+execute: 
+  echo: true
+  warning: false
+  message: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(tidyverse)
+library(nlme)
+library(broom)
+library(finalfit)
+library(gtsummary)
+library(lmtest)
+library(lme4)
+library(clubSandwich)
+library(patchwork)
+library(splines)
+theme_set(theme_bw())
+```
+
+```{r}
+heart_df <- read.table("aortic_valve.dat",header = TRUE)
+```
+
+```{r}
+df <- heart_df %>% 
+  mutate(
+    age = age %>% ff_label("Age(years)"),
+    sex = if_else(sex ==0,"Male","Female") %>% 
+      fct_relevel("Female") %>% 
+      ff_label("Sex"),
+    redo = if_else(redo ==0,"No","Yes") %>% 
+      fct_relevel("No") %>% 
+      ff_label("Previous Cardiac Surgery"),
+    emerg = if_else(emerg == 0,"Elective","Emergent") %>% 
+      fct_relevel("Elective") %>% 
+      ff_label("Operative Urgency"),
+    dm = if_else(dm ==0,"No","Yes") %>% 
+      fct_relevel("No") %>% 
+      ff_label("Preoperative Diabetes"),
+    type = if_else(type ==1,"Human Tissue","Porcine Tissue") %>% 
+      fct_relevel("Porcine Tissue") %>% 
+      ff_label("Type of Valve"),
+    lvmi =lvmi %>%  ff_label("LVMI"),
+    futime = futime %>% ff_label("Follow-up Time(years)"),
+    status = if_else(status == 0,"Censored","Death") %>% 
+      fct_relevel("Censored") %>% 
+      ff_label("Status"),
+    log_lvmi = log(lvmi)
+  )
+```
+
+### NULL MODEL WITH NO VALVE TYPE INCLUDED
+
+```{r}
+model.null <- df %>% 
+  lmer(log_lvmi ~ ns(time,2) + age +  I(sex) + I(redo) + I(emerg) + I(dm) +
+         (time|id),REML = FALSE, data = .)
+
+summary(model.null)
+
+```
+
+### MODEL WITH VALVE TYPE INCLUDED BUT ASSUMING SAME SLOPE
+
+```{r}
+model_type <-  df %>% 
+  lmer(log_lvmi ~ ns(time,2) + age + I(sex) + I(redo) + I(emerg) + I(dm) + I(type) +(time|id),REML = FALSE, data = .)
+
+summary(model_type)
+```
+
+### MODEL WITH INTERACTION OF VALVE TYPE WITH TIME
+
+```{r}
+model_interaction  <- df %>% 
+  lmer(log_lvmi ~ ns(time,2) + age + I(sex) + I(redo) + I(emerg) + I(dm) + I(type) + I(type):ns(time,2) +(time|id),REML = FALSE, data = .)
+
+summary(model_interaction)
+```
+
+#### LR TEST OF NULL MODEL AND MODEL WITH VALVE TYPE BUT ASSUMING SAME SLOPE
+
+```{r}
+
+lrtest(model.null,model_type)
+```
+
+#### LR TEST OF NULL MODEL AND INTERACTION MODEL
+
+```{r}
+lrtest(model.null,model_interaction)
+```
+
+#### LRTEST OF SAME SLOPE MODEL AND INTERACTION TERM MODEL
+
+```{r}
+lrtest(model_type,model_interaction)
+```
+
+#### GETTING PREDICTIONS FROM NULL MODEL
+
+```{r}
+preds.null <- predict(model.null)
+df$preds = exp(preds.null)
+
+
+lvmi_summary_type <- df %>% 
+  group_by(type,time) %>% 
+  summarise(mean_lvmi = mean(lvmi),
+            mean_pred_lvmi = mean(preds)) 
+```
+
+#### SPHAGETTI PLOT OF PREDICTED TRAJECTORIES 
+
+```{r}
+ggplot()+
+  geom_line(data = df,aes(group = id,x =time, y= preds,color = type),alpha = 0.3)+
+  geom_smooth(data = lvmi_summary_type,aes( group = type,x = time, y = mean_pred_lvmi,color = type),
+              se = FALSE)+
+  labs(x ="Years Since Valve Replacement",
+       y = " Predicted Left Ventricular Mass Index",
+       title = " Trajectory of Predicted LVMI Regression by Type of Valve",
+       color = "Valve Type")+
+  theme(legend.position = c(1,1),legend.justification = c(1,1),
+        plot.title = element_text(hjust = 0.5, size = 14, fac="bold"))
+```
+
+#### SPHAGETTI PLOT OF OBSERVED VS PREDICTED TRAJECTORIES
+
+```{r}
+df |> 
+  ggplot()+
+  geom_line(aes(group = id,x =time, y= lvmi,color = type),alpha = 0.2)+
+  geom_smooth(data = lvmi_summary_type,aes(group = type, x= time, y = mean_lvmi,color = type),se = FALSE)+
+  geom_smooth(data = lvmi_summary_type,aes(group= type, x = time, y = mean_pred_lvmi,color = type),se = FALSE,linetype = "dashed")+
+  labs(x ="Years Since Valve Replacement",
+       y = "Left Ventricular Mass Index",
+       title ="LVMI Regression by Type of Valve: Observed vs Predicted Trajectory",
+       color = "Valve Type",
+       caption = "Dashed lines: predicted")+
+  theme(legend.position = c(1,1),legend.justification = c(1,1),
+        plot.title = element_text(hjust = 0.5, size = 14, fac="bold"))
+```
+
+```{r}
+
+spline_terms <- model.matrix(model_interaction)
+
+
+
+boundary_knots <- attr(ns(df$time, df = 2), "Boundary.knots")
+boundary_knots
+
+
+internal_knots <- attr(ns(df$time, df = 2), "knots")
+internal_knots
+
+
+A <- ns(df$time, knots = internal_knots, Boundary.knots = boundary_knots)
+A <- as.matrix(A)
+
+
+
+b=matrix(summary(model_interaction)$coefficients[10:11,1],ncol=1)
+
+var_b=summary(model_interaction)$vcov[10:11,10:11]
+var_b
+
+
+fit=A %*% b
+
+
+```
+
+```{r}
+var_fit_diag <- numeric(nrow(A))
+
+for (i in 1:nrow(A)) {
+  var_fit_diag[i] <- A[i, ] %*% var_b %*% t(A[i, , drop = FALSE])
+}
+
+
+se_fit <- sqrt(var_fit_diag)
+
+
+result <- data.frame(
+  time = df$time,
+  fit = fit,
+  se_fit = se_fit,
+  ci_l = fit - 2 * se_fit,
+  ci_u = fit + 2 * se_fit
+)
+```
+
+```{r}
+ggplot(data=result,aes(x=time, y=fit)) +
+geom_line() +
+geom_abline(intercept=0,slope=0,col="red") +
+geom_line(aes(x=time,y=ci_l),col="blue") +
+geom_line(aes(x=time,y=ci_u),col="blue")+
+  labs(x = "Time in Years",
+       y = "Mean LVMI Difference")
+```
