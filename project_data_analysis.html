@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="KWABENA ASABERE">
-<meta name="dcterms.date" content="2024-12-04">
+<meta name="dcterms.date" content="2024-12-16">
 
 <title>DATA ANALYSIS</title>
 <style>
@@ -98,7 +98,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">December 4, 2024</p>
+      <p class="date">December 16, 2024</p>
     </div>
   </div>
   
@@ -122,7 +122,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lme4)</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(clubSandwich)</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(<span class="fu">theme_bw</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(splines)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(<span class="fu">theme_bw</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>heart_df <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">"aortic_valve.dat"</span>,<span class="at">header =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -203,23 +204,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">modify_footnote</span>(<span class="at">update =</span> <span class="fu">all_stat_cols</span>() <span class="sc">~</span></span>
 <span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>      <span class="st">"*mean(standard deviation) for continuous; n(%) for categorical*"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="vsmudywows" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#vsmudywows table {
+<div id="zlodeyvdzp" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#zlodeyvdzp table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#vsmudywows thead, #vsmudywows tbody, #vsmudywows tfoot, #vsmudywows tr, #vsmudywows td, #vsmudywows th {
+#zlodeyvdzp thead, #zlodeyvdzp tbody, #zlodeyvdzp tfoot, #zlodeyvdzp tr, #zlodeyvdzp td, #zlodeyvdzp th {
   border-style: none;
 }
 
-#vsmudywows p {
+#zlodeyvdzp p {
   margin: 0;
   padding: 0;
 }
 
-#vsmudywows .gt_table {
+#zlodeyvdzp .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -245,12 +246,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-left-color: #D3D3D3;
 }
 
-#vsmudywows .gt_caption {
+#zlodeyvdzp .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#vsmudywows .gt_title {
+#zlodeyvdzp .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -262,7 +263,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 0;
 }
 
-#vsmudywows .gt_subtitle {
+#zlodeyvdzp .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -274,7 +275,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-width: 0;
 }
 
-#vsmudywows .gt_heading {
+#zlodeyvdzp .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -286,13 +287,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#vsmudywows .gt_bottom_border {
+#zlodeyvdzp .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#vsmudywows .gt_col_headings {
+#zlodeyvdzp .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -307,7 +308,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#vsmudywows .gt_col_heading {
+#zlodeyvdzp .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -327,7 +328,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   overflow-x: hidden;
 }
 
-#vsmudywows .gt_column_spanner_outer {
+#zlodeyvdzp .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -339,15 +340,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 4px;
 }
 
-#vsmudywows .gt_column_spanner_outer:first-child {
+#zlodeyvdzp .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#vsmudywows .gt_column_spanner_outer:last-child {
+#zlodeyvdzp .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#vsmudywows .gt_column_spanner {
+#zlodeyvdzp .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -359,11 +360,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   width: 100%;
 }
 
-#vsmudywows .gt_spanner_row {
+#zlodeyvdzp .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#vsmudywows .gt_group_heading {
+#zlodeyvdzp .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -389,7 +390,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   text-align: left;
 }
 
-#vsmudywows .gt_empty_group_heading {
+#zlodeyvdzp .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -404,15 +405,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
 }
 
-#vsmudywows .gt_from_md > :first-child {
+#zlodeyvdzp .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#vsmudywows .gt_from_md > :last-child {
+#zlodeyvdzp .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#vsmudywows .gt_row {
+#zlodeyvdzp .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -431,7 +432,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   overflow-x: hidden;
 }
 
-#vsmudywows .gt_stub {
+#zlodeyvdzp .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -444,7 +445,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#vsmudywows .gt_stub_row_group {
+#zlodeyvdzp .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -458,15 +459,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: top;
 }
 
-#vsmudywows .gt_row_group_first td {
+#zlodeyvdzp .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#vsmudywows .gt_row_group_first th {
+#zlodeyvdzp .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#vsmudywows .gt_summary_row {
+#zlodeyvdzp .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -476,16 +477,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#vsmudywows .gt_first_summary_row {
+#zlodeyvdzp .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#vsmudywows .gt_first_summary_row.thick {
+#zlodeyvdzp .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#vsmudywows .gt_last_summary_row {
+#zlodeyvdzp .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -495,7 +496,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
 }
 
-#vsmudywows .gt_grand_summary_row {
+#zlodeyvdzp .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -505,7 +506,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#vsmudywows .gt_first_grand_summary_row {
+#zlodeyvdzp .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -515,7 +516,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-color: #D3D3D3;
 }
 
-#vsmudywows .gt_last_grand_summary_row_top {
+#zlodeyvdzp .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -525,11 +526,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
 }
 
-#vsmudywows .gt_striped {
+#zlodeyvdzp .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#vsmudywows .gt_table_body {
+#zlodeyvdzp .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -538,7 +539,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
 }
 
-#vsmudywows .gt_footnotes {
+#zlodeyvdzp .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -552,7 +553,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#vsmudywows .gt_footnote {
+#zlodeyvdzp .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -561,7 +562,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#vsmudywows .gt_sourcenotes {
+#zlodeyvdzp .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -575,7 +576,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#vsmudywows .gt_sourcenote {
+#zlodeyvdzp .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -583,63 +584,63 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#vsmudywows .gt_left {
+#zlodeyvdzp .gt_left {
   text-align: left;
 }
 
-#vsmudywows .gt_center {
+#zlodeyvdzp .gt_center {
   text-align: center;
 }
 
-#vsmudywows .gt_right {
+#zlodeyvdzp .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#vsmudywows .gt_font_normal {
+#zlodeyvdzp .gt_font_normal {
   font-weight: normal;
 }
 
-#vsmudywows .gt_font_bold {
+#zlodeyvdzp .gt_font_bold {
   font-weight: bold;
 }
 
-#vsmudywows .gt_font_italic {
+#zlodeyvdzp .gt_font_italic {
   font-style: italic;
 }
 
-#vsmudywows .gt_super {
+#zlodeyvdzp .gt_super {
   font-size: 65%;
 }
 
-#vsmudywows .gt_footnote_marks {
+#zlodeyvdzp .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#vsmudywows .gt_asterisk {
+#zlodeyvdzp .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#vsmudywows .gt_indent_1 {
+#zlodeyvdzp .gt_indent_1 {
   text-indent: 5px;
 }
 
-#vsmudywows .gt_indent_2 {
+#zlodeyvdzp .gt_indent_2 {
   text-indent: 10px;
 }
 
-#vsmudywows .gt_indent_3 {
+#zlodeyvdzp .gt_indent_3 {
   text-indent: 15px;
 }
 
-#vsmudywows .gt_indent_4 {
+#zlodeyvdzp .gt_indent_4 {
   text-indent: 20px;
 }
 
-#vsmudywows .gt_indent_5 {
+#zlodeyvdzp .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -1135,55 +1136,123 @@ type    0.236 -0.030 -0.429  0.025  0.198 -0.055 -0.029</code></pre>
 </div>
 <p>The square root transformation of “Time” significantly improves the symmetry of its distribution, as shown in the histogram, which now appears approximately bell-shaped with reduced skewness. The Q-Q plot indicates an improved alignment with the theoretical quantiles compared to the original data, although slight deviations remain in the tails. This transformation effectively mitigates the extreme skewness seen in the original variable and is a suitable approach for enhancing normality and stabilizing variance for further statistical analyses.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>model4 <span class="ot">&lt;-</span>  heart_df <span class="sc">%&gt;%</span> </span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lmer</span>(log_lvmi <span class="sc">~</span> <span class="fu">sqrt</span>(time) <span class="sc">+</span> age <span class="sc">+</span> sex <span class="sc">+</span> redo <span class="sc">+</span> emerg <span class="sc">+</span> dm <span class="sc">+</span> type <span class="sc">+</span> </span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>         (<span class="fu">sqrt</span>(time)<span class="sc">|</span>id),<span class="at">REML =</span> <span class="cn">FALSE</span>, <span class="at">data =</span> .)</span>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>model.null <span class="ot">&lt;-</span>  heart_df <span class="sc">%&gt;%</span> </span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lmer</span>(log_lvmi <span class="sc">~</span> <span class="fu">ns</span>(time,<span class="dv">2</span>) <span class="sc">+</span> age <span class="sc">+</span> sex <span class="sc">+</span> redo <span class="sc">+</span> emerg <span class="sc">+</span> dm <span class="sc">+</span> type <span class="sc">+</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>         (time<span class="sc">|</span>id),<span class="at">REML =</span> <span class="cn">FALSE</span>, <span class="at">data =</span> .)</span>
 <span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model.null)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Linear mixed model fit by maximum likelihood  ['lmerMod']
-Formula: log_lvmi ~ sqrt(time) + age + sex + redo + emerg + dm + type +  
-    (sqrt(time) | id)
+Formula: log_lvmi ~ ns(time, 2) + age + sex + redo + emerg + dm + type +  
+    (time | id)
    Data: .
 
      AIC      BIC   logLik deviance df.resid 
-   199.4    258.2    -87.7    175.4      976 
+   222.8    286.5    -98.4    196.8      975 
 
 Scaled residuals: 
     Min      1Q  Median      3Q     Max 
--4.4952 -0.4993  0.0096  0.4873  3.4706 
+-4.6145 -0.5247 -0.0137  0.4604  4.7304 
 
 Random effects:
  Groups   Name        Variance Std.Dev. Corr 
- id       (Intercept) 0.12987  0.3604        
-          sqrt(time)  0.02193  0.1481   -0.57
- Residual             0.03408  0.1846        
+ id       (Intercept) 0.101568 0.31870       
+          time        0.001643 0.04054  -0.38
+ Residual             0.037088 0.19258       
 Number of obs: 988, groups:  id, 256
 
 Fixed effects:
-              Estimate Std. Error t value
-(Intercept)  5.1083760  0.1177702  43.376
-sqrt(time)  -0.0395014  0.0151737  -2.603
-age         -0.0006039  0.0018611  -0.324
-sex1        -0.1726754  0.0454993  -3.795
-redo1        0.0515611  0.0703195   0.733
-emerg1       0.0082459  0.0653893   0.126
-dm1         -0.1979888  0.0960012  -2.062
-type         0.0776141  0.0462413   1.678
+               Estimate Std. Error t value
+(Intercept)   5.0942716  0.1158061  43.990
+ns(time, 2)1 -0.1206017  0.0532614  -2.264
+ns(time, 2)2  0.0683962  0.0691854   0.989
+age          -0.0005007  0.0018488  -0.271
+sex1         -0.1718417  0.0452879  -3.794
+redo1         0.0550676  0.0698375   0.789
+emerg1        0.0144303  0.0653222   0.221
+dm1          -0.1934533  0.0952884  -2.030
+type          0.0768065  0.0458680   1.675
 
 Correlation of Fixed Effects:
-           (Intr) sqrt() age    sex1   redo1  emerg1 dm1   
-sqrt(time) -0.240                                          
-age        -0.941  0.071                                   
-sex1        0.003  0.019 -0.120                            
-redo1      -0.020 -0.033 -0.071  0.082                     
-emerg1      0.007  0.056 -0.056 -0.022 -0.098              
-dm1        -0.005 -0.016 -0.017 -0.025 -0.066 -0.013       
-type        0.240 -0.033 -0.433  0.023  0.197 -0.055 -0.028</code></pre>
+            (Intr) n(,2)1 n(,2)2 age    sex1   redo1  emerg1 dm1   
+ns(time,2)1 -0.187                                                 
+ns(time,2)2 -0.047  0.476                                          
+age         -0.947  0.073  0.042                                   
+sex1         0.007  0.019  0.007 -0.123                            
+redo1       -0.023 -0.031 -0.024 -0.072  0.082                     
+emerg1       0.010  0.065  0.026 -0.056 -0.026 -0.099              
+dm1         -0.009 -0.014  0.002 -0.014 -0.023 -0.063 -0.017       
+type         0.236 -0.032 -0.011 -0.429  0.025  0.198 -0.055 -0.029</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lrtest</span>(model3,model4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>model.full <span class="ot">&lt;-</span> heart_df <span class="sc">%&gt;%</span> </span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lmer</span>(log_lvmi <span class="sc">~</span> <span class="fu">ns</span>(time,<span class="dv">2</span>) <span class="sc">+</span> age <span class="sc">+</span> sex <span class="sc">+</span> redo <span class="sc">+</span> emerg <span class="sc">+</span> dm <span class="sc">+</span> type <span class="sc">+</span> type<span class="sc">:</span><span class="fu">ns</span>(time,<span class="dv">2</span>) <span class="sc">+</span>(time<span class="sc">|</span>id),<span class="at">REML =</span> <span class="cn">FALSE</span>, <span class="at">data =</span> .)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model.full)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by maximum likelihood  ['lmerMod']
+Formula: log_lvmi ~ ns(time, 2) + age + sex + redo + emerg + dm + type +  
+    type:ns(time, 2) + (time | id)
+   Data: .
+
+     AIC      BIC   logLik deviance df.resid 
+   226.0    299.4    -98.0    196.0      973 
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-4.5994 -0.5263 -0.0069  0.4614  4.7380 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr 
+ id       (Intercept) 0.101906 0.31923       
+          time        0.001706 0.04131  -0.39
+ Residual             0.036892 0.19207       
+Number of obs: 988, groups:  id, 256
+
+Fixed effects:
+                    Estimate Std. Error t value
+(Intercept)        5.0922619  0.1166592  43.651
+ns(time, 2)1      -0.1367341  0.0771075  -1.773
+ns(time, 2)2       0.0012148  0.1002942   0.012
+age               -0.0005042  0.0018499  -0.273
+sex1              -0.1713477  0.0453187  -3.781
+redo1              0.0565449  0.0699202   0.809
+emerg1             0.0133837  0.0653505   0.205
+dm1               -0.1945720  0.0953603  -2.040
+type               0.0815988  0.0545230   1.497
+ns(time, 2)1:type  0.0291270  0.1068183   0.273
+ns(time, 2)2:type  0.1269885  0.1392295   0.912
+
+Correlation of Fixed Effects:
+            (Intr) ns(,2)1 ns(,2)2 age    sex1   redo1  emerg1 dm1    type  
+ns(time,2)1 -0.202                                                          
+ns(time,2)2 -0.034  0.487                                                   
+age         -0.939  0.041   0.026                                           
+sex1         0.009 -0.001  -0.009  -0.123                                   
+redo1       -0.021 -0.038  -0.035  -0.071  0.082                            
+emerg1       0.010  0.051   0.029  -0.056 -0.026 -0.099                     
+dm1         -0.011  0.005   0.011  -0.014 -0.024 -0.064 -0.017              
+type         0.135  0.326   0.009  -0.368  0.014  0.160 -0.046 -0.015       
+ns(tm,2)1:t  0.103 -0.718  -0.350   0.013  0.020  0.023 -0.008 -0.021 -0.482
+ns(tm,2)2:t  0.002 -0.350  -0.720   0.003  0.018  0.026 -0.015 -0.013 -0.018
+            n(,2)1:
+ns(time,2)1        
+ns(time,2)2        
+age                
+sex1               
+redo1              
+emerg1             
+dm1                
+type               
+ns(tm,2)1:t        
+ns(tm,2)2:t  0.480 
+optimizer (nloptwrap) convergence code: 0 (OK)
+Model failed to converge with max|grad| = 0.00301617 (tol = 0.002, component 1)</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lrtest</span>(model.null,model.full)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="kable-table">
 <table class="caption-top table table-sm table-striped small">
@@ -1198,45 +1267,45 @@ type        0.240 -0.033 -0.433  0.023  0.197 -0.055 -0.028</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: right;">12</td>
-<td style="text-align: right;">-102.09279</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">-98.40883</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">NA</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">12</td>
-<td style="text-align: right;">-87.71765</td>
-<td style="text-align: right;">0</td>
-<td style="text-align: right;">28.75028</td>
-<td style="text-align: right;">0</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">-97.98680</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.8440498</td>
+<td style="text-align: right;">0.6557177</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
 </div>
-<p>the LRT suggests that square root transformation of time​ better captures the relationship with the log-transformed LVMI, improving model fit significantly. Therefore, using the square root transformation of time is more appropriate for this analysis.</p>
+<p>the LRT suggests that there is no d</p>
 </section>
 <section id="model-4-diagnostics" class="level4">
 <h4 class="anchored" data-anchor-id="model-4-diagnostics">Model 4 Diagnostics</h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>model4_summ <span class="ot">&lt;-</span> <span class="fu">summary</span>(model4)</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>model_resid <span class="ot">&lt;-</span> model4_summ<span class="sc">$</span>residuals</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>resids <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(model_resid) <span class="sc">%&gt;%</span> </span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">residuals =</span> value) <span class="sc">%&gt;%</span> </span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(residuals)</span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">predict</span>(model4) <span class="sc">%&gt;%</span> </span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">preds =</span> value) <span class="sc">%&gt;%</span> </span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(preds)</span>
-<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>model4_diags <span class="ot">&lt;-</span> <span class="fu">cbind</span>(preds,resids)</span>
-<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>model4_diags <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>model_null_summ <span class="ot">&lt;-</span> <span class="fu">summary</span>(model.null)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>model_resid <span class="ot">&lt;-</span> model_null_summ<span class="sc">$</span>residuals</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>resids <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(model_resid) <span class="sc">%&gt;%</span> </span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">residuals =</span> value) <span class="sc">%&gt;%</span> </span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(residuals)</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">predict</span>(model.null) <span class="sc">%&gt;%</span> </span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">preds =</span> value) <span class="sc">%&gt;%</span> </span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(preds)</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>model_null_diags <span class="ot">&lt;-</span> <span class="fu">cbind</span>(preds,resids)</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>model_null_diags <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="kable-table">
 <table class="caption-top table table-sm table-striped small">
@@ -1248,28 +1317,28 @@ type        0.240 -0.033 -0.433  0.023  0.197 -0.055 -0.028</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: right;">4.841370</td>
-<td style="text-align: right;">-0.3380867</td>
+<td style="text-align: right;">4.868813</td>
+<td style="text-align: right;">-0.4665912</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">4.863518</td>
-<td style="text-align: right;">-0.4580578</td>
+<td style="text-align: right;">4.847561</td>
+<td style="text-align: right;">-0.3562374</td>
 </tr>
 <tr class="odd">
-<td style="text-align: right;">4.866559</td>
-<td style="text-align: right;">0.3142296</td>
+<td style="text-align: right;">4.860366</td>
+<td style="text-align: right;">0.3333759</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">4.844576</td>
-<td style="text-align: right;">-0.5430476</td>
+<td style="text-align: right;">4.824420</td>
+<td style="text-align: right;">-0.4159092</td>
 </tr>
 <tr class="odd">
-<td style="text-align: right;">4.832566</td>
-<td style="text-align: right;">-0.7253404</td>
+<td style="text-align: right;">4.827293</td>
+<td style="text-align: right;">-0.6679319</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">4.820646</td>
-<td style="text-align: right;">1.2899804</td>
+<td style="text-align: right;">4.834362</td>
+<td style="text-align: right;">1.1653594</td>
 </tr>
 </tbody>
 </table>
@@ -1277,34 +1346,34 @@ type        0.240 -0.033 -0.433  0.023  0.197 -0.055 -0.028</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>model4_diags <span class="sc">%&gt;%</span> </span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">sample =</span> residuals))<span class="sc">+</span></span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_qq</span>()<span class="sc">+</span></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_qq_line</span>()<span class="sc">+</span></span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Q-Q Plot of Residuals"</span>,</span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Theoretical Quantiles"</span>,</span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Sample Quantiles"</span></span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  )<span class="sc">+</span></span>
-<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">14</span>, <span class="at">fac=</span><span class="st">"bold"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>model_null_diags <span class="sc">%&gt;%</span> </span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">sample =</span> residuals))<span class="sc">+</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_qq</span>()<span class="sc">+</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_qq_line</span>()<span class="sc">+</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Q-Q Plot of Residuals"</span>,</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Theoretical Quantiles"</span>,</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Sample Quantiles"</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  )<span class="sc">+</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">14</span>, <span class="at">fac=</span><span class="st">"bold"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="project_data_analysis_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="project_data_analysis_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>model4_diags <span class="sc">%&gt;%</span> </span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> preds, <span class="at">y =</span> residuals))<span class="sc">+</span></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>)<span class="sc">+</span></span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>,<span class="at">linetype =</span> <span class="st">"dashed"</span>,<span class="at">color =</span> <span class="st">"red"</span>,<span class="at">linewidth =</span> <span class="fl">0.7</span>)<span class="sc">+</span></span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Fitted"</span>, <span class="at">y =</span> <span class="st">"Residuals"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>model_null_diags <span class="sc">%&gt;%</span> </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> preds, <span class="at">y =</span> residuals))<span class="sc">+</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>)<span class="sc">+</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>,<span class="at">linetype =</span> <span class="st">"dashed"</span>,<span class="at">color =</span> <span class="st">"red"</span>,<span class="at">linewidth =</span> <span class="fl">0.7</span>)<span class="sc">+</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Fitted"</span>, <span class="at">y =</span> <span class="st">"Residuals"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="project_data_analysis_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="project_data_analysis_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1317,60 +1386,60 @@ type        0.240 -0.033 -0.433  0.023  0.197 -0.055 -0.028</code></pre>
 <section id="sphagetti-plots" class="level3">
 <h3 class="anchored" data-anchor-id="sphagetti-plots">SPHAGETTI PLOTS</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>lvmi_summary_type <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> </span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(type,time) <span class="sc">%&gt;%</span> </span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_lvmi =</span> <span class="fu">mean</span>(lvmi))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>lvmi_summary_type <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> </span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(type,time) <span class="sc">%&gt;%</span> </span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_lvmi =</span> <span class="fu">mean</span>(lvmi))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="sphagetti-plot-of-observed-lvmis" class="level4">
 <h4 class="anchored" data-anchor-id="sphagetti-plot-of-observed-lvmis">Sphagetti Plot of Observed LVMIs</h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>()<span class="sc">+</span></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">group =</span> id,<span class="at">x =</span>time, <span class="at">y=</span> lvmi,<span class="at">color =</span> type),<span class="at">alpha =</span> <span class="fl">0.2</span>)<span class="sc">+</span></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">data =</span> lvmi_summary_type,<span class="fu">aes</span>(<span class="at">group =</span> type, <span class="at">x=</span> time, <span class="at">y =</span> mean_lvmi,<span class="at">color =</span> type),<span class="at">se =</span> <span class="cn">FALSE</span>)<span class="sc">+</span></span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span><span class="st">"Years Since Valve Replacement"</span>,</span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Left Ventricular Mass Index"</span>,</span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">" Trajectory of LVMI Regression by Type of Valve"</span>,</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">color =</span> <span class="st">"Valve Type"</span>)<span class="sc">+</span></span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">legend.justification =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),</span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">14</span>, <span class="at">fac=</span><span class="st">"bold"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="project_data_analysis_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>preds4 <span class="ot">&lt;-</span> <span class="fu">predict</span>(model4)</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>preds <span class="ot">=</span> <span class="fu">exp</span>(preds4)</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>lvmi_summary_type <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> </span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(type,time) <span class="sc">%&gt;%</span> </span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_lvmi =</span> <span class="fu">mean</span>(lvmi),</span>
-<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_pred_lvmi =</span> <span class="fu">mean</span>(preds)) <span class="sc">%&gt;%</span> </span>
-<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type_col =</span> <span class="fu">if_else</span>(type <span class="sc">==</span> <span class="st">"Porcine Tissue"</span>,<span class="st">"red"</span>,<span class="st">"blue"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="sphagetti-plot-of-predicted-lvmis" class="level4">
-<h4 class="anchored" data-anchor-id="sphagetti-plot-of-predicted-lvmis">Sphagetti Plot of Predicted LVMIs</h4>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>()<span class="sc">+</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> df,<span class="fu">aes</span>(<span class="at">group =</span> id,<span class="at">x =</span>time, <span class="at">y=</span> preds,<span class="at">color =</span> type),<span class="at">alpha =</span> <span class="fl">0.2</span>)<span class="sc">+</span></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">data =</span> lvmi_summary_type,<span class="fu">aes</span>( <span class="at">group =</span> type,<span class="at">x =</span> time, <span class="at">y =</span> mean_pred_lvmi,<span class="at">color =</span> type),</span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">se =</span> <span class="cn">FALSE</span>)<span class="sc">+</span></span>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>()<span class="sc">+</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">group =</span> id,<span class="at">x =</span>time, <span class="at">y=</span> lvmi,<span class="at">color =</span> type),<span class="at">alpha =</span> <span class="fl">0.2</span>)<span class="sc">+</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">data =</span> lvmi_summary_type,<span class="fu">aes</span>(<span class="at">group =</span> type, <span class="at">x=</span> time, <span class="at">y =</span> mean_lvmi,<span class="at">color =</span> type),<span class="at">se =</span> <span class="cn">FALSE</span>)<span class="sc">+</span></span>
 <span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span><span class="st">"Years Since Valve Replacement"</span>,</span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">" Predicted Left Ventricular Mass Index"</span>,</span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">" Trajectory of Predicted LVMI Regression by Type of Valve"</span>,</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Left Ventricular Mass Index"</span>,</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">" Trajectory of LVMI Regression by Type of Valve"</span>,</span>
 <span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">color =</span> <span class="st">"Valve Type"</span>)<span class="sc">+</span></span>
 <span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">legend.justification =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),</span>
 <span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">14</span>, <span class="at">fac=</span><span class="st">"bold"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="project_data_analysis_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="project_data_analysis_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>preds.null <span class="ot">&lt;-</span> <span class="fu">predict</span>(model.null)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>preds <span class="ot">=</span> <span class="fu">exp</span>(preds.null)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>lvmi_summary_type <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> </span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(type,time) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_lvmi =</span> <span class="fu">mean</span>(lvmi),</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_pred_lvmi =</span> <span class="fu">mean</span>(preds)) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type_col =</span> <span class="fu">if_else</span>(type <span class="sc">==</span> <span class="st">"Porcine Tissue"</span>,<span class="st">"red"</span>,<span class="st">"blue"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="sphagetti-plot-of-predicted-lvmis" class="level4">
+<h4 class="anchored" data-anchor-id="sphagetti-plot-of-predicted-lvmis">Sphagetti Plot of Predicted LVMIs</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>()<span class="sc">+</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> df,<span class="fu">aes</span>(<span class="at">group =</span> id,<span class="at">x =</span>time, <span class="at">y=</span> preds,<span class="at">color =</span> type),<span class="at">alpha =</span> <span class="fl">0.2</span>)<span class="sc">+</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">data =</span> lvmi_summary_type,<span class="fu">aes</span>( <span class="at">group =</span> type,<span class="at">x =</span> time, <span class="at">y =</span> mean_pred_lvmi,<span class="at">color =</span> type),</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">se =</span> <span class="cn">FALSE</span>)<span class="sc">+</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span><span class="st">"Years Since Valve Replacement"</span>,</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">" Predicted Left Ventricular Mass Index"</span>,</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">" Trajectory of Predicted LVMI Regression by Type of Valve"</span>,</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">color =</span> <span class="st">"Valve Type"</span>)<span class="sc">+</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">legend.justification =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">14</span>, <span class="at">fac=</span><span class="st">"bold"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="project_data_analysis_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1379,22 +1448,21 @@ type        0.240 -0.033 -0.433  0.023  0.197 -0.055 -0.028</code></pre>
 <section id="sphagetti-plot-of-observed-vs-predicted-lvmis" class="level4">
 <h4 class="anchored" data-anchor-id="sphagetti-plot-of-observed-vs-predicted-lvmis">Sphagetti Plot of Observed Vs Predicted LVMIs</h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>()<span class="sc">+</span></span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">group =</span> id,<span class="at">x =</span>time, <span class="at">y=</span> lvmi,<span class="at">color =</span> type),<span class="at">alpha =</span> <span class="fl">0.2</span>)<span class="sc">+</span></span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">data =</span> lvmi_summary_type,<span class="fu">aes</span>(<span class="at">group =</span> type, <span class="at">x=</span> time, <span class="at">y =</span> mean_lvmi,<span class="at">color =</span> type,<span class="at">linetype =</span> type),<span class="at">se =</span> <span class="cn">FALSE</span>)<span class="sc">+</span></span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">data =</span> lvmi_summary_type,<span class="fu">aes</span>(<span class="at">group=</span> type, <span class="at">x =</span> time, <span class="at">y =</span> mean_pred_lvmi,<span class="at">color =</span> type,<span class="at">linetype =</span> type),<span class="at">se =</span> <span class="cn">FALSE</span>)<span class="sc">+</span></span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span><span class="st">"Years Since Valve Replacement"</span>,</span>
-<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Left Ventricular Mass Index"</span>,</span>
-<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span><span class="st">"LVMI Regression by Type of Valve: Observed vs Predicted Trajectory"</span>,</span>
-<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">color =</span> <span class="st">"Valve Type"</span>,</span>
-<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">linetype =</span> <span class="st">"Valve Type"</span>)<span class="sc">+</span></span>
-<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">legend.justification =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),</span>
-<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">14</span>, <span class="at">fac=</span><span class="st">"bold"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>()<span class="sc">+</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">group =</span> id,<span class="at">x =</span>time, <span class="at">y=</span> lvmi,<span class="at">color =</span> type),<span class="at">alpha =</span> <span class="fl">0.2</span>)<span class="sc">+</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">data =</span> lvmi_summary_type,<span class="fu">aes</span>(<span class="at">group =</span> type, <span class="at">x=</span> time, <span class="at">y =</span> mean_lvmi,<span class="at">color =</span> type),<span class="at">se =</span> <span class="cn">FALSE</span>)<span class="sc">+</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">data =</span> lvmi_summary_type,<span class="fu">aes</span>(<span class="at">group=</span> type, <span class="at">x =</span> time, <span class="at">y =</span> mean_pred_lvmi,<span class="at">color =</span> type),<span class="at">se =</span> <span class="cn">FALSE</span>,<span class="at">linetype =</span> <span class="st">"dashed"</span>)<span class="sc">+</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span><span class="st">"Years Since Valve Replacement"</span>,</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Left Ventricular Mass Index"</span>,</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span><span class="st">"LVMI Regression by Type of Valve: Observed vs Predicted Trajectory"</span>,</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">color =</span> <span class="st">"Valve Type"</span>)<span class="sc">+</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">legend.justification =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">14</span>, <span class="at">fac=</span><span class="st">"bold"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="project_data_analysis_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="project_data_analysis_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1405,37 +1473,48 @@ type        0.240 -0.033 -0.433  0.023  0.197 -0.055 -0.028</code></pre>
 <h3 class="anchored" data-anchor-id="intepretation-of-model-results">INTEPRETATION OF MODEL RESULTS</h3>
 <p>The covariance metric for the coefficients is estimated to be</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>k <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">fixef</span>(model4))</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">matrix</span>(<span class="fu">summary</span>(model4)<span class="sc">$</span>vcov, <span class="at">ncol =</span> k), <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>k <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">fixef</span>(model.null))</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">matrix</span>(<span class="fu">summary</span>(model.null)<span class="sc">$</span>vcov, <span class="at">ncol =</span> k), <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>         [,1]     [,2]     [,3]     [,4]     [,5]     [,6]     [,7]     [,8]
-[1,]  0.01387 -0.00043 -0.00021  0.00002 -0.00017  0.00005 -0.00005  0.00130
-[2,] -0.00043  0.00023  0.00000  0.00001 -0.00003  0.00006 -0.00002 -0.00002
-[3,] -0.00021  0.00000  0.00000 -0.00001 -0.00001 -0.00001  0.00000 -0.00004
-[4,]  0.00002  0.00001 -0.00001  0.00207  0.00026 -0.00006 -0.00011  0.00005
-[5,] -0.00017 -0.00003 -0.00001  0.00026  0.00494 -0.00045 -0.00044  0.00064
-[6,]  0.00005  0.00006 -0.00001 -0.00006 -0.00045  0.00428 -0.00008 -0.00017
-[7,] -0.00005 -0.00002  0.00000 -0.00011 -0.00044 -0.00008  0.00922 -0.00013
-[8,]  0.00130 -0.00002 -0.00004  0.00005  0.00064 -0.00017 -0.00013  0.00214</code></pre>
+<pre><code>          [,1]     [,2]     [,3]   [,4]     [,5]     [,6]     [,7]     [,8]
+ [1,]  0.01341 -0.00115 -0.00038 -2e-04  0.00004 -0.00019  0.00007 -0.00010
+ [2,] -0.00115  0.00284  0.00175  1e-05  0.00005 -0.00012  0.00023 -0.00007
+ [3,] -0.00038  0.00175  0.00479  1e-05  0.00002 -0.00011  0.00012  0.00002
+ [4,] -0.00020  0.00001  0.00001  0e+00 -0.00001 -0.00001 -0.00001  0.00000
+ [5,]  0.00004  0.00005  0.00002 -1e-05  0.00205  0.00026 -0.00008 -0.00010
+ [6,] -0.00019 -0.00012 -0.00011 -1e-05  0.00026  0.00488 -0.00045 -0.00042
+ [7,]  0.00007  0.00023  0.00012 -1e-05 -0.00008 -0.00045  0.00427 -0.00011
+ [8,] -0.00010 -0.00007  0.00002  0e+00 -0.00010 -0.00042 -0.00011  0.00908
+ [9,]  0.00125 -0.00008 -0.00004 -4e-05  0.00005  0.00063 -0.00016 -0.00013
+          [,9]
+ [1,]  0.00125
+ [2,] -0.00008
+ [3,] -0.00004
+ [4,] -0.00004
+ [5,]  0.00005
+ [6,]  0.00063
+ [7,] -0.00016
+ [8,] -0.00013
+ [9,]  0.00210</code></pre>
 </div>
 </div>
 <p>and the random effects covariance matrix and residual variance estimates are:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model4)<span class="sc">$</span>varcor</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model.null)<span class="sc">$</span>varcor</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> Groups   Name        Std.Dev. Corr  
- id       (Intercept) 0.36038        
-          sqrt(time)  0.14810  -0.570
- Residual             0.18461        </code></pre>
+ id       (Intercept) 0.318697       
+          time        0.040539 -0.383
+ Residual             0.192583       </code></pre>
 </div>
 </div>
 <p>To test the null hypothesis that the two valve types have the same mean LVMI regression as a function of time, we compare model 4 that allows for different treatment trajectories to the null model 4 (called mod4.null) that assumes a common trajectory.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>model4.null <span class="ot">&lt;-</span>  heart_df <span class="sc">%&gt;%</span> </span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lmer</span>(log_lvmi <span class="sc">~</span> <span class="fu">sqrt</span>(time) <span class="sc">+</span> age <span class="sc">+</span> sex <span class="sc">+</span> redo <span class="sc">+</span> emerg <span class="sc">+</span> dm <span class="sc">+</span> </span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>         (<span class="fu">sqrt</span>(time)<span class="sc">|</span>id),<span class="at">REML =</span> <span class="cn">FALSE</span>, <span class="at">data =</span> .)</span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model4.null)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>model4.null <span class="ot">&lt;-</span>  heart_df <span class="sc">%&gt;%</span> </span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lmer</span>(log_lvmi <span class="sc">~</span> <span class="fu">sqrt</span>(time) <span class="sc">+</span> age <span class="sc">+</span> sex <span class="sc">+</span> redo <span class="sc">+</span> emerg <span class="sc">+</span> dm <span class="sc">+</span> </span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>         (<span class="fu">sqrt</span>(time)<span class="sc">|</span>id),<span class="at">REML =</span> <span class="cn">FALSE</span>, <span class="at">data =</span> .)</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model4.null)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Linear mixed model fit by maximum likelihood  ['lmerMod']
 Formula: log_lvmi ~ sqrt(time) + age + sex + redo + emerg + dm + (sqrt(time) |  
@@ -1477,7 +1556,7 @@ dm1         0.002 -0.017 -0.033 -0.024 -0.061 -0.015</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lrtest</span>(model4.null,model4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lrtest</span>(model4.null,model.full)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="kable-table">
 <table class="caption-top table table-sm table-striped small">
@@ -1499,11 +1578,11 @@ dm1         0.002 -0.017 -0.033 -0.024 -0.061 -0.015</code></pre>
 <td style="text-align: right;">NA</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">12</td>
-<td style="text-align: right;">-87.71765</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">2.788517</td>
-<td style="text-align: right;">0.094942</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">-97.98680</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">17.74978</td>
+<td style="text-align: right;">0.0013811</td>
 </tr>
 </tbody>
 </table>
@@ -1516,48 +1595,48 @@ dm1         0.002 -0.017 -0.033 -0.024 -0.061 -0.015</code></pre>
 <h3 class="anchored" data-anchor-id="check-the-robustness-of-the-test-of-treatment-effect">Check the robustness of the test of treatment effect</h3>
 <p>The log-likelihood test performed above requires that the model assumptions be close to correct that the data are approximately Gaussian and that the random intercept/slope adequately capture the sources of autocorrelation. We can check these inferences by using a Wald test with the robust covariance estimates as done below.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the robust variance-covariance matrix</span></span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>V_robust <span class="ot">&lt;-</span> <span class="fu">vcovCR</span>(model4, <span class="at">type =</span> <span class="st">"CR1"</span>, <span class="at">form =</span> <span class="st">"sandwich"</span>)</span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract the coefficient for 'type' and its variance (from robust vcov)</span></span>
-<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>coef_type <span class="ot">&lt;-</span> <span class="fu">summary</span>(model4)<span class="sc">$</span>coefficients[<span class="st">"type"</span>, <span class="st">"Estimate"</span>]</span>
-<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>var_type_robust <span class="ot">&lt;-</span> V_robust[<span class="st">"type"</span>, <span class="st">"type"</span>]</span>
-<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Wald test statistic using robust variance</span></span>
-<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>test_stat_robust <span class="ot">&lt;-</span> (coef_type<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> var_type_robust</span>
-<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a><span class="co"># p-value for robust Wald test</span></span>
-<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>p_robust <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pchisq</span>(test_stat_robust, <span class="at">df =</span> <span class="dv">1</span>)</span>
-<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Wald test statistic using model's standard variance</span></span>
-<span id="cb38-16"><a href="#cb38-16" aria-hidden="true" tabindex="-1"></a>var_type_model <span class="ot">&lt;-</span> <span class="fu">summary</span>(model4)<span class="sc">$</span>vcov[<span class="st">"type"</span>, <span class="st">"type"</span>]</span>
-<span id="cb38-17"><a href="#cb38-17" aria-hidden="true" tabindex="-1"></a>test_stat_model <span class="ot">&lt;-</span> (coef_type<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> var_type_model</span>
-<span id="cb38-18"><a href="#cb38-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-19"><a href="#cb38-19" aria-hidden="true" tabindex="-1"></a><span class="co"># p-value for model-based Wald test</span></span>
-<span id="cb38-20"><a href="#cb38-20" aria-hidden="true" tabindex="-1"></a>p_model <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pchisq</span>(test_stat_model, <span class="at">df =</span> <span class="dv">1</span>)</span>
-<span id="cb38-21"><a href="#cb38-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-22"><a href="#cb38-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine results</span></span>
-<span id="cb38-23"><a href="#cb38-23" aria-hidden="true" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb38-24"><a href="#cb38-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">test_model =</span> test_stat_model,</span>
-<span id="cb38-25"><a href="#cb38-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">p_model =</span> p_model,</span>
-<span id="cb38-26"><a href="#cb38-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">test_robust =</span> test_stat_robust,</span>
-<span id="cb38-27"><a href="#cb38-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">p_robust =</span> p_robust</span>
-<span id="cb38-28"><a href="#cb38-28" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb38-29"><a href="#cb38-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-30"><a href="#cb38-30" aria-hidden="true" tabindex="-1"></a>result</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the robust variance-covariance matrix</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>V_robust <span class="ot">&lt;-</span> <span class="fu">vcovCR</span>(model.full, <span class="at">type =</span> <span class="st">"CR1"</span>, <span class="at">form =</span> <span class="st">"sandwich"</span>)</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract the coefficient for 'type' and its variance (from robust vcov)</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>coef_type <span class="ot">&lt;-</span> <span class="fu">summary</span>(model.full)<span class="sc">$</span>coefficients[<span class="st">"type"</span>, <span class="st">"Estimate"</span>]</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>var_type_robust <span class="ot">&lt;-</span> V_robust[<span class="st">"type"</span>, <span class="st">"type"</span>]</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Wald test statistic using robust variance</span></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>test_stat_robust <span class="ot">&lt;-</span> (coef_type<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> var_type_robust</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a><span class="co"># p-value for robust Wald test</span></span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>p_robust <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pchisq</span>(test_stat_robust, <span class="at">df =</span> <span class="dv">1</span>)</span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Wald test statistic using model's standard variance</span></span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a>var_type_model <span class="ot">&lt;-</span> <span class="fu">summary</span>(model.full)<span class="sc">$</span>vcov[<span class="st">"type"</span>, <span class="st">"type"</span>]</span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a>test_stat_model <span class="ot">&lt;-</span> (coef_type<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> var_type_model</span>
+<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a><span class="co"># p-value for model-based Wald test</span></span>
+<span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a>p_model <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pchisq</span>(test_stat_model, <span class="at">df =</span> <span class="dv">1</span>)</span>
+<span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine results</span></span>
+<span id="cb40-23"><a href="#cb40-23" aria-hidden="true" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb40-24"><a href="#cb40-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">test_model =</span> test_stat_model,</span>
+<span id="cb40-25"><a href="#cb40-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">p_model =</span> p_model,</span>
+<span id="cb40-26"><a href="#cb40-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">test_robust =</span> test_stat_robust,</span>
+<span id="cb40-27"><a href="#cb40-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">p_robust =</span> p_robust</span>
+<span id="cb40-28"><a href="#cb40-28" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb40-29"><a href="#cb40-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-30"><a href="#cb40-30" aria-hidden="true" tabindex="-1"></a>result</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>$test_model
-[1] 2.817225
+[1] 2.239793
 
 $p_model
-[1] 0.09325749
+[1] 0.1344989
 
 $test_robust
-[1] 3.014715
+[1] 2.265731
 
 $p_robust
-[1] 0.08251195</code></pre>
+[1] 0.1322638</code></pre>
 </div>
 </div>
 <p>The Wald test results indicate that the coefficient for <strong><code>type</code></strong> is not statistically significant (p&gt;0.05). Therefore, there is insufficient evidence to conclude that valve type has an effect on the log-transformed LVMI.</p>

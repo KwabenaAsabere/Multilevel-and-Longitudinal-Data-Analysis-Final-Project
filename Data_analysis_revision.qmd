@@ -13,6 +13,14 @@ editor_options:
   chunk_output_type: console
 ---
 
+# Longitudinal Study of the Profile and Predictors of Left Ventricular Mass Regression After Stentless Aortic Valve Replacement
+
+### Questions
+
+1.  For patients who are otherwise similar, does the rate of LVMI regression differ between those who received porcine tissue valves and homograft valves?
+
+2.  How does age,diabetes,previous cardiac surgery, and sex affect the rate of LVMI regression?
+
 ```{r}
 library(tidyverse)
 library(nlme)
@@ -24,7 +32,7 @@ library(lme4)
 library(clubSandwich)
 library(patchwork)
 library(splines)
-theme_set(theme_bw())
+theme_set(theme_minimal())
 ```
 
 ```{r}
@@ -57,6 +65,79 @@ df <- heart_df %>%
       ff_label("Status"),
     log_lvmi = log(lvmi)
   )
+```
+
+```{r}
+#| label: "Table One"
+#| tbl-cap: "**TABLE ONE**"
+df %>% select(-c(time,id)) %>% 
+  tbl_summary(by = type,
+    statistic =
+      list(all_categorical() ~ "{n} ({p}%)",
+           all_continuous() ~ "{mean} ({sd})"),
+    digits = list(all_categorical() ~ 0,
+                  all_continuous() ~ 0),
+  ) %>%
+  add_overall() %>%
+  bold_labels() %>%
+  italicize_levels() %>%
+  modify_spanning_header(
+    update = all_stat_cols() ~ "**Type of Valve**"
+  ) %>% 
+  modify_footnote(update = all_stat_cols() ~
+      "*mean(standard deviation) for continuous; n(%) for categorical*")
+```
+
+```{r}
+lvmi_hist <- df %>% 
+  ggplot(aes(x = lvmi))+
+  geom_histogram(fill = "steelblue",color = "black",bins = 20)+
+  labs(x = "Left Ventricular Mass Index",
+       y = "Frequency",
+       title = "Distribution of Left Ventricular Mass Index")+
+theme(plot.title = element_text(hjust = 0.5, size = 14, face = "bold"))
+
+lvmi_qq <- heart_df %>% 
+  ggplot(aes(sample = lvmi))+
+  stat_qq(color = "steelblue")+
+  stat_qq_line()+
+  labs(
+    title = "Q-Q Plot of LVMI",
+    x = "Theoretical Quantiles",
+    y = "Sample Quantiles"
+  )+
+  theme( plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+         axis.title = element_text(size = 12),
+         axis.text = element_text(size = 10))
+
+lvmi_hist + lvmi_qq
+```
+
+```{r}
+
+log_hist <- df %>% 
+  ggplot(aes(x = log(lvmi))) +
+  geom_histogram(fill = "steelblue",color = "black",bins = 20)+
+  labs(x = "Left Ventricular Mass Index",
+       y = "Frequency",
+       title = "Distribution of Left Ventricular Mass Index")+
+theme(plot.title = element_text(hjust = 0.5, size = 14, face = "bold"))
+
+
+log_qq <-  df %>% 
+  ggplot(aes(sample = log(lvmi)))+
+  stat_qq(color = "steelblue")+
+  stat_qq_line()+
+  labs(
+    title = "Q-Q Plot of LVMI",
+    x = "Theoretical Quantiles",
+    y = "Sample Quantiles"
+  )+
+  theme( plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+         axis.title = element_text(size = 12),
+         axis.text = element_text(size = 10))
+
+log_hist + log_qq
 ```
 
 ### NULL MODEL WITH NO VALVE TYPE INCLUDED
@@ -110,104 +191,129 @@ lrtest(model_type,model_interaction)
 #### GETTING PREDICTIONS FROM NULL MODEL
 
 ```{r}
-preds.null <- predict(model.null)
-df$preds = exp(preds.null)
+df_model <- model.null %>% 
+  predict(se = TRUE) %>% 
+   as_tibble() %>% 
+  mutate(id = df$id,
+    preds = exp(fit),
+    lower_ci = exp(fit - 1.96 * se.fit),
+    upper_ci = exp(fit + 1.96 * se.fit),
+    lvmi = df$lvmi,
+    time = df$time
+  ) %>% 
+  select(id,time,lvmi,preds,lower_ci,upper_ci,everything())
 
 
-lvmi_summary_type <- df %>% 
-  group_by(type,time) %>% 
+df_model_summary <- df_model %>% 
+  group_by(time) %>% 
   summarise(mean_lvmi = mean(lvmi),
             mean_pred_lvmi = mean(preds)) 
+
 ```
 
-#### SPHAGETTI PLOT OF PREDICTED TRAJECTORIES 
+### Trajectory of Predicted LVMI Regression
 
 ```{r}
-ggplot()+
-  geom_line(data = df,aes(group = id,x =time, y= preds,color = type),alpha = 0.3)+
-  geom_smooth(data = lvmi_summary_type,aes( group = type,x = time, y = mean_pred_lvmi,color = type),
-              se = FALSE)+
-  labs(x ="Years Since Valve Replacement",
-       y = " Predicted Left Ventricular Mass Index",
-       title = " Trajectory of Predicted LVMI Regression by Type of Valve",
-       color = "Valve Type")+
-  theme(legend.position = c(1,1),legend.justification = c(1,1),
-        plot.title = element_text(hjust = 0.5, size = 14, fac="bold"))
-```
+# create a new data set with mean of continuous variables and mode of categorical variables.This represents the population mean
+# make predictions on it to get population mean curve
+## type of valve is excluded because from our model there is no difference in trajectory for the two valve types
 
-#### SPHAGETTI PLOT OF OBSERVED VS PREDICTED TRAJECTORIES
+new_data <- tibble(
+  time = seq(min(df$time), max(df$time), length.out = 100),
+    age = mean(df$age,na.rm = TRUE),
+           sex = "Male",
+           redo = "No",
+           emerg = "Elective",
+           dm = "No")
 
-```{r}
-df |> 
-  ggplot()+
-  geom_line(aes(group = id,x =time, y= lvmi,color = type),alpha = 0.2)+
-  geom_smooth(data = lvmi_summary_type,aes(group = type, x= time, y = mean_lvmi,color = type),se = FALSE)+
-  geom_smooth(data = lvmi_summary_type,aes(group= type, x = time, y = mean_pred_lvmi,color = type),se = FALSE,linetype = "dashed")+
-  labs(x ="Years Since Valve Replacement",
-       y = "Left Ventricular Mass Index",
-       title ="LVMI Regression by Type of Valve: Observed vs Predicted Trajectory",
-       color = "Valve Type",
-       caption = "Dashed lines: predicted")+
-  theme(legend.position = c(1,1),legend.justification = c(1,1),
-        plot.title = element_text(hjust = 0.5, size = 14, fac="bold"))
-```
-
-```{r}
-
-spline_terms <- model.matrix(model_interaction)
-
-
-
-boundary_knots <- attr(ns(df$time, df = 2), "Boundary.knots")
-boundary_knots
-
-
-internal_knots <- attr(ns(df$time, df = 2), "knots")
-internal_knots
-
-
-A <- ns(df$time, knots = internal_knots, Boundary.knots = boundary_knots)
-A <- as.matrix(A)
-
-
-
-b=matrix(summary(model_interaction)$coefficients[10:11,1],ncol=1)
-
-var_b=summary(model_interaction)$vcov[10:11,10:11]
-var_b
-
-
-fit=A %*% b
 
 
 ```
 
 ```{r}
-var_fit_diag <- numeric(nrow(A))
 
-for (i in 1:nrow(A)) {
-  var_fit_diag[i] <- A[i, ] %*% var_b %*% t(A[i, , drop = FALSE])
-}
+## make predictions on new data using the chosen model
+## this gives population mean curve
+## calculate confidence intervals for predicted values
+new_data_preds <- model.null %>% 
+  predict(se = TRUE,re.form = NA,newdata = new_data) %>% 
+  as_tibble() %>% 
+  mutate(
+    preds = exp(fit),
+    lower_ci = exp(fit - 1.96 * se.fit),
+    upper_ci = exp(fit + 1.96 * se.fit))
+
+df_predicted <- bind_cols(new_data,new_data_preds)
+
+```
+
+```{r}
+# make a plot of predicted values and confidence interval
+
+df_predicted %>% 
+  ggplot(aes(x = time)) +
+  geom_line(aes(y = preds), color = "blue", size = 1) +
+  geom_line(aes(y = lower_ci), color = "red", linetype = "dashed",size = 0.8) +
+  geom_line(aes(y = upper_ci), color = "red", linetype = "dashed",size = 0.8) +
+  geom_abline(intercept = 0, slope = 0, color = "red") +
+  labs(x = "Time in Years",
+       y = "Mean LVMI Difference",
+       title = "Trajectory of Population Mean LVMI with 95% CI")+
+  theme(
+  legend.position = c(1, 1),
+  legend.justification = c(1, 1),
+  plot.title = element_text(hjust = 0.5, size = 14, face = "bold")
+)
 
 
-se_fit <- sqrt(var_fit_diag)
+```
 
-
-result <- data.frame(
-  time = df$time,
-  fit = fit,
-  se_fit = se_fit,
-  ci_l = fit - 2 * se_fit,
-  ci_u = fit + 2 * se_fit
+```{r}
+## adding predicted values from observed data
+df_predicted %>% 
+  ggplot(aes(x = time)) +
+  geom_line(data = df,aes(group = id,y= lvmi),alpha = 0.3)+
+  geom_line(aes(y = preds), color = "blue", size = 1) +
+  geom_line(aes(y = lower_ci), color = "red", linetype = "dashed",size = 0.8) +
+  geom_line(aes(y = upper_ci), color = "red", linetype = "dashed",size = 0.8) +
+  geom_abline(intercept = 0, slope = 0, color = "red") +
+  labs(x = "Time in Years",
+       y = "Mean LVMI Difference",
+       title = "Population Mean LVMI with 95% CI")+
+  theme(
+  legend.position = c(1, 1),
+  legend.justification = c(1, 1),
+  plot.title = element_text(hjust = 0.5, size = 14, face = "bold")
 )
 ```
 
 ```{r}
-ggplot(data=result,aes(x=time, y=fit)) +
-geom_line() +
-geom_abline(intercept=0,slope=0,col="red") +
-geom_line(aes(x=time,y=ci_l),col="blue") +
-geom_line(aes(x=time,y=ci_u),col="blue")+
-  labs(x = "Time in Years",
-       y = "Mean LVMI Difference")
+
+time <-seq(min(df$time), max(df$time), length.out = 100)
+spline_basis <- ns(df$time, df = 2)
+
+boundary_knots <- attr(spline_basis, "Boundary.knots")
+
+internal_knots <- attr(spline_basis, "knots")
+
+A <- matrix(ns(time,Boundary.knots =  boundary_knots,knots =  internal_knots),ncol = 2)
+
+b <- matrix(summary(model_interaction)$coefficients[10:11, 1], ncol = 1)
+
+var_b <- summary(model_interaction)$vcov[10:11, 10:11]
+
+fit=A %*% b
+var_fit = A %*% var_b %*% t(A)
+se_fit = sqrt(diag(var_fit))
+result=data.frame(time=time,fit=fit,se_fit=se_fit,ci_l=fit-2*se_fit,ci_u=fit+2*se_fit)
+
+result %>% 
+ggplot(aes(x=time, y=fit)) + geom_point() + geom_line() +
+  geom_abline(intercept=0,slope=0,col="red") +
+  geom_line(aes(x=time,y=ci_l),col="blue",linewidth = 0.7) +
+  geom_line(aes(x=time,y=ci_u),col="blue",linewidth = 0.7)+
+  labs(title = "Mean LVMI difference over time with 95% CI",
+       x = "Time after Aortic Valve Surgery (years)",
+       y = "Mean LVMI Difference")+
+  theme(plot.title = element_text(face = "bold",hjust = 0.5,size = 14))
 ```

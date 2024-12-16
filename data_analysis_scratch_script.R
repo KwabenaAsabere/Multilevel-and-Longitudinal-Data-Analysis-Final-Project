@@ -424,8 +424,21 @@ lrtest(model1,model4)
 
 
 
+model.null <-  heart_df %>% 
+  lmer(log_lvmi ~ ns(time,2) + age + sex + redo + emerg + dm + type +
+         (time|id),REML = FALSE, data = .)
 
+summary(model.null)
 
+model.full <- heart_df %>% 
+  lmer(log_lvmi ~ ns(time,2) + age + sex + redo + emerg + dm + type + type:ns(time,2) +
+         (time|id),REML = FALSE, data = .)
+summary(model.full)
+
+lrtest(model.null,model.full)
+
+## predict(model.null,newdata = new_data) where the new_data is the design matrix of default values(average age,sex = 0,)
+## h
 
 
 
